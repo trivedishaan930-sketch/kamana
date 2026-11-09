@@ -4,7 +4,7 @@ Read in order: `AGENTS.md`, `.ai/STATE.md`, `.ai/CONTEXT.md`, the claimed task i
 
 ## Strict single-writer protocol
 
-1. Check the active agent and heartbeat in `.ai/STATE.md`. If another heartbeat is under 3 hours old, stop and report only. If older, mark it stale, take over, and log the takeover.
+1. Check the active agent and heartbeat in `.ai/STATE.md`. The owner has authorized a 10-minute stale-heartbeat threshold for this relay; if another heartbeat is under 10 minutes old, stop and report only. If older, mark it stale, take over, and log the takeover.
 2. At session start, review the previous agent's last commits, build/security status, and plan consistency. Write that review to `.ai/REVIEWS/`; log errors in `.ai/ERRORS.md` and fix small issues or create a task before new work.
 3. Claim one task in `.ai/TASKS.md` with status, owner, and UTC time; push the claim immediately.
 4. Work sequentially. After every small finished step, update `.ai/STATE.md`, append `.ai/LOG.md`, commit as `[agent-id] T-xxx: message`, then `git pull --rebase` and push to `main`. Never force-push.
