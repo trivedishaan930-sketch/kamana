@@ -1,3 +1,7 @@
 name = "kamna"
 compatibility_date = "2026-11-09"
 pages_build_output_dir = "./dist"
+
+[vars]
+SUPABASE_URL = "https://cgtlvfhvmhqpklkzbuma.supabase.co"
+ADULT_SECTION_ENABLED = "false"
