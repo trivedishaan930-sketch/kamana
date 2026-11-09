@@ -63,9 +63,10 @@ function Page({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function SignIn({ onClose }: { onClose?: () => void }) {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [resending, setResending] = useState(false);
@@ -76,6 +77,8 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     const client = supabase;
     if (!client) return;
     let active = true;
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (hashParams.get('type') === 'recovery') setMode('reset');
     async function completeConfirmation() {
       const params = new URLSearchParams(location.search);
       const code = params.get('code');
@@ -102,6 +105,14 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     return () => { active = false; };
   }, [navigate, onClose]);
 
+  function switchMode(next: 'signin' | 'signup' | 'forgot' | 'reset') {
+    setMode(next);
+    setMessage('');
+    setShowResend(false);
+    setPassword('');
+    setConfirmPassword('');
+  }
+
   async function resendConfirmation() {
     if (!supabase || !email.trim()) {
       setMessage('Enter the same email address used for signup first.');
@@ -110,13 +121,9 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     setResending(true);
     setMessage('');
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email.trim(),
-        options: { emailRedirectTo: `${location.origin}/signin` },
-      });
+      const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim(), options: { emailRedirectTo: `${location.origin}/signin` } });
       if (error) throw error;
-      setMessage('A new confirmation email was requested. Check Inbox and Spam.');
+      setMessage('If this account needs confirmation, a new email was requested. Check Inbox and Spam.');
       setShowResend(false);
     } catch (error) {
       setMessage(errorMessage(error, 'Could not resend the confirmation email. Please wait and try again.'));
@@ -129,14 +136,26 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     setBusy(true);
     setMessage('');
     try {
-      if (mode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/signin` } });
+      if (mode === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${location.origin}/signin` });
+        if (error) throw error;
+        setMessage('If an account uses this email, a password-reset link was requested. Check Inbox and Spam.');
+        setMode('signin');
+      } else if (mode === 'reset') {
+        if (password !== confirmPassword) { setMessage('Passwords do not match.'); return; }
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        setMessage('Password updated. You are signed in.');
+        onClose?.();
+        navigate('/account', { replace: true });
+      } else if (mode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${location.origin}/signin` } });
         if (error) throw error;
         setShowResend(!data.session);
-        setMessage(data.session ? 'Account created and signed in.' : 'Check your email to confirm your account before signing in.');
+        setMessage(data.session ? 'Account created and signed in.' : 'If this email is new, a confirmation email was sent. If you already have an account, use Sign in or Forgot password.');
         if (data.session) { onClose?.(); navigate('/account'); }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) {
           const code = (error as { code?: string }).code;
           setShowResend(code === 'email_not_confirmed' || /confirm|verify|not active/i.test(error.message));
@@ -146,21 +165,26 @@ function SignIn({ onClose }: { onClose?: () => void }) {
         navigate('/account');
       }
     } catch (error) {
-      setMessage(errorMessage(error, 'Unable to complete sign-in.'));
+      setMessage(errorMessage(error, 'Unable to complete account request.'));
     } finally { setBusy(false); }
   }
 
-  return <Page title={mode === 'signin' ? 'Sign in' : 'Create an account'}><section className="form-card auth-card">
-    <p>Use email and password. New accounts require email confirmation; we will not create a demo or local account.</p>
+  const title = mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create an account' : mode === 'forgot' ? 'Reset your password' : 'Choose a new password';
+  const needsPassword = mode === 'signin' || mode === 'signup' || mode === 'reset';
+  return <Page title={title}><section className="form-card auth-card">
+    <p>{mode === 'forgot' ? 'Enter your email and we will send a secure reset link. For privacy, the same message is shown whether or not an account exists.' : mode === 'reset' ? 'Choose a new password for your Kamna account.' : 'Use email and password. New accounts require email confirmation; we will not create a demo or local account.'}</p>
     {!supabaseConfigured && <Setup/>}
     <form onSubmit={submit}>
-      <div className="field"><label htmlFor="email">Email</label><input id="email" type="email" required autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
-      <div className="field"><label htmlFor="password">Password</label><input id="password" type="password" required minLength={8} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)}/></div>
+      <div className="field"><label htmlFor="email">Email</label><input id="email" type="email" required={mode !== 'reset'} autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
+      {needsPassword && <div className="field"><label htmlFor="password">{mode === 'reset' ? 'New password' : 'Password'}</label><input id="password" type="password" required minLength={8} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)}/></div>}
+      {mode === 'reset' && <div className="field"><label htmlFor="confirm-password">Confirm new password</label><input id="confirm-password" type="password" required minLength={8} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)}/></div>}
       {message && <p role="status">{message}</p>}
       {showResend && <button type="button" className="button-secondary" disabled={resending || busy} onClick={() => void resendConfirmation()}>{resending ? 'Sending…' : 'Resend confirmation email'}</button>}
-      <button className="button-primary" disabled={busy || !supabase}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Sign up'}</button>
+      <button className="button-primary" disabled={busy || !supabase}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Sign up' : mode === 'forgot' ? 'Send reset link' : 'Update password'}</button>
     </form>
-    <button className="button-quiet" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(''); setShowResend(false); }}>{mode === 'signin' ? 'Need an account? Sign up' : 'Already registered? Sign in'}</button>
+    {mode === 'signin' && <><button className="button-quiet" onClick={() => switchMode('forgot')}>Forgot password?</button><button className="button-quiet" onClick={() => switchMode('signup')}>Need an account? Sign up</button></>}
+    {mode === 'signup' && <button className="button-quiet" onClick={() => switchMode('signin')}>Already registered? Sign in</button>}
+    {mode === 'forgot' && <button className="button-quiet" onClick={() => switchMode('signin')}>Back to sign in</button>}
   </section><Rules/></Page>;
 }
 
@@ -290,7 +314,11 @@ function Account() {
   const reload = useCallback(async () => {
     setError('');
     try { const response = await api<{ items: Artwork[] }>('account/artworks'); setItems(response.items); }
-    catch (error) { setError(errorMessage(error, 'Unable to load your artwork.')); }
+    catch (error) {
+      setError(error instanceof ApiError && error.status === 503
+        ? 'Your sign-in is working, but the account data service is temporarily unavailable. Please retry after the site administrator completes the production server configuration.'
+        : errorMessage(error, 'Unable to load your artwork.'));
+    }
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void reload(); }, [reload]);
