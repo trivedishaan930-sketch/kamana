@@ -1,4 +1,99 @@
-import {type Context,method,db,json,fail,HttpError,user,adultUser,tags,txt,CATEGORIES,STYLES,storePut,storeDelete} from '../_lib/core';
-const max=8*1024*1024;
-function sniff(b:Uint8Array):string|null{if(b.length>=3&&b[0]===255&&b[1]===216&&b[2]===255)return'image/jpeg';if(b.length>=8&&[137,80,78,71,13,10,26,10].every((x,i)=>b[i]===x))return'image/png';if(b.length>=12&&String.fromCharCode(...b.slice(0,4))==='RIFF'&&String.fromCharCode(...b.slice(8,12))==='WEBP')return'image/webp';return null;}
-export const onRequestPost=async(c:Context)=>{let key='';try{method(c,'POST');const u=await user(c),form=await c.request.formData(),file=form.get('file');if(!(file instanceof File)||file.size<1||file.size>max)throw new HttpError(400,'Only JPG, PNG, or WebP images up to 8 MiB are accepted');const bytes=new Uint8Array(await file.arrayBuffer()),mime=sniff(bytes);if(!mime||file.type!==mime)throw new HttpError(400,'Image signature does not match JPG, PNG, or WebP');const category=String(form.get('category')||''),style=String(form.get('style')||'other'),rating=String(form.get('rating')||'general');if(!CATEGORIES.includes(category)||!STYLES.includes(style)||!['general','adult'].includes(rating))throw new HttpError(400,'Invalid category, style, or rating');if(rating==='adult'){await adultUser(c);if(category!=='adult-fashion-swimwear')throw new HttpError(400,'Adult rating is limited to the adult fashion/swimwear category');}else if(category==='adult-fashion-swimwear')throw new HttpError(400,'Adult category requires adult rating');const title=txt(form.get('title'),'title',80,true),description=txt(form.get('description')||'','description',600),tagList=tags(JSON.parse(String(form.get('tags')||'[]'))),tool=txt(form.get('tool')||'','tool',100),model=txt(form.get('model')||'','model',100),prompt=txt(form.get('prompt')||'','prompt',1000),sensitive=form.get('sensitive')==='true';if(form.get('aiGenerated')!=='true'||form.get('rightsConfirmed')!=='true'||form.get('aiDisclosureConfirmed')!=='true')throw new HttpError(400,'AI-generation, rights, and AI disclosure confirmations are required');if(form.get('contentPolicyConfirmed')!=='true')throw new HttpError(400,'Content policy confirmation is required');const ext=mime==='image/jpeg'?'jpg':mime.split('/')[1],id=crypto.randomUUID();key=`${u.id}/${id}.${ext}`;const d=db(c),{data:reservation,error}=await d.rpc('kamna_reserve_upload',{p_user_id:u.id,p_object_key:key,p_size_bytes:file.size,p_mime_type:mime});if(error||!reservation)throw new HttpError(429,'Upload reservation limit or storage capacity reached');await storePut(c,key,bytes,mime,{provenance_id:id,ai_generated:'true',category,rating});const params={p_user_id:u.id,p_object_key:key,p_size_bytes:file.size,p_title:title,p_description:description,p_tags:tagList,p_category:category,p_style:style,p_rating:rating,p_ai_tool:tool||null,p_ai_model:model||null,p_ai_prompt:prompt||null,p_sensitive:sensitive,p_provenance_id:id,p_rights_disclosure:'Uploader confirms rights to publish',p_ai_disclosure:'AI-generated; uploader-confirmed'};const {data:art,error:e}=await d.rpc('kamna_finalize_upload',params);if(e||!art)throw e||new Error('Finalization failed');return json({artwork:art},201);}catch(e){if(key)try{await storeDelete(c,key);}catch(cleanup){console.error('Upload compensation failed',cleanup);}return fail(e);}};
+import { adultUser, CATEGORIES, Context, db, enumValue, fail, HttpError, json, MAX_IMAGE_BYTES, method, storeDelete, storePut, STYLES, tags, text, user } from '../_lib/core';
+
+function sniff(bytes: Uint8Array): string | null {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg';
+  if (bytes.length >= 8 && [137, 80, 78, 71, 13, 10, 26, 10].every((value, index) => bytes[index] === value)) return 'image/png';
+  if (bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP') return 'image/webp';
+  return null;
+}
+
+export const onRequestPost = async (c: Context): Promise<Response> => {
+  let objectKey = '';
+  let uploaded = false;
+  try {
+    method(c, 'POST');
+    const length = Number(c.request.headers.get('Content-Length') || 0);
+    if (length > MAX_IMAGE_BYTES + 64_000) throw new HttpError(413, 'Image must be 8 MiB or smaller');
+    const creator = await user(c);
+    let form: FormData;
+    try { form = await c.request.formData(); } catch { throw new HttpError(400, 'A multipart image upload is required'); }
+    const file = form.get('file');
+    if (!(file instanceof File) || file.size < 1 || file.size > MAX_IMAGE_BYTES) throw new HttpError(400, 'Only JPG, PNG, or WebP images up to 8 MiB are accepted');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const mime = sniff(bytes);
+    if (!mime || file.type !== mime) throw new HttpError(400, 'Image signature does not match JPG, PNG, or WebP');
+
+    const category = enumValue(String(form.get('category') || ''), CATEGORIES, 'category');
+    const style = enumValue(String(form.get('style') || 'other'), STYLES, 'style');
+    const rating = enumValue(String(form.get('rating') || 'general'), ['general', 'adult'] as const, 'audience rating');
+    if (rating === 'adult') {
+      await adultUser(c);
+      if (category !== 'adult-fashion-swimwear') throw new HttpError(400, 'Adult artwork is limited to the 18+ Fashion & Swimwear category');
+    } else if (category === 'adult-fashion-swimwear') {
+      throw new HttpError(400, 'The 18+ category requires an adult audience rating');
+    }
+    if (category === 'indian-folk-traditional' && style === 'other') throw new HttpError(400, 'Choose the specific Indian art tradition for this collection');
+    if (category !== 'indian-folk-traditional' && style !== 'other') throw new HttpError(400, 'Tradition labels only apply to Indian Folk & Traditional');
+
+    const title = text(form.get('title'), 'title', 80, true);
+    const description = text(form.get('description') || '', 'description', 600);
+    let tagValues: string[];
+    try { tagValues = tags(JSON.parse(String(form.get('tags') || '[]'))); } catch (error) { throw error instanceof HttpError ? error : new HttpError(400, 'Invalid tags'); }
+    const tool = text(form.get('tool') || '', 'AI tool', 100);
+    const model = text(form.get('model') || '', 'AI model', 100);
+    const prompt = text(form.get('prompt') || '', 'prompt / process note', 1000);
+    const sensitive = form.get('sensitive') === 'true';
+    if (form.get('aiGenerated') !== 'true' || form.get('aiDisclosureConfirmed') !== 'true') throw new HttpError(400, 'Confirm that this work is AI-generated');
+    if (form.get('rightsConfirmed') !== 'true') throw new HttpError(400, 'Confirm that you have rights to publish this image');
+    if (form.get('contentPolicyConfirmed') !== 'true') throw new HttpError(400, 'Confirm that this upload follows the content rules');
+
+    const extension = mime === 'image/jpeg' ? 'jpg' : mime === 'image/png' ? 'png' : 'webp';
+    const artworkId = crypto.randomUUID();
+    objectKey = `${creator.id}/${artworkId}.${extension}`;
+    const client = db(c);
+    const { data: reservation, error: reservationError } = await client.rpc('kamna_reserve_upload', {
+      p_user_id: creator.id,
+      p_object_key: objectKey,
+      p_size_bytes: file.size,
+      p_mime_type: mime,
+    });
+    if (reservationError || !reservation) {
+      const message = reservationError?.message || '';
+      if (/limit|capacity|ceiling|quota/i.test(message)) throw new HttpError(429, 'Upload reservation limit or storage capacity reached');
+      console.error('Upload reservation failed', reservationError);
+      throw new HttpError(503, 'Upload could not be reserved; please try again later');
+    }
+
+    await storePut(c, objectKey, bytes, mime, { provenance_id: artworkId, ai_generated: 'true', category, rating });
+    uploaded = true;
+    const { data: artwork, error: finalizeError } = await client.rpc('kamna_finalize_upload', {
+      p_user_id: creator.id,
+      p_object_key: objectKey,
+      p_size_bytes: file.size,
+      p_title: title,
+      p_description: description,
+      p_tags: tagValues,
+      p_category: category,
+      p_style: style,
+      p_rating: rating,
+      p_ai_tool: tool || null,
+      p_ai_model: model || null,
+      p_ai_prompt: prompt || null,
+      p_sensitive: sensitive,
+      p_provenance_id: artworkId,
+      p_rights_disclosure: 'Uploader confirms rights to publish',
+      p_ai_disclosure: 'AI-generated; uploader-confirmed',
+    });
+    if (finalizeError || !artwork) {
+      console.error('Upload finalization failed', finalizeError);
+      throw new HttpError(503, 'The upload could not be finalized; please try again later');
+    }
+    return json({ artwork }, 201);
+  } catch (error) {
+    if (uploaded && objectKey) {
+      try { await storeDelete(c, objectKey); }
+      catch (cleanupError) { console.error('Upload compensation failed', cleanupError); }
+    }
+    return fail(error);
+  }
+};

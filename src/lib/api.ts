@@ -12,10 +12,15 @@ export type Artwork = {
   style?: string | null;
   audience_rating?: 'general' | 'adult';
   provenance_id?: string | null;
+  ai_generated?: boolean;
   ai_model?: string | null;
   ai_tool?: string | null;
+  ai_prompt?: string | null;
+  ai_disclosure?: string | null;
+  rights_disclosure?: string | null;
   sensitive?: boolean;
   status?: string;
+  cleanup_status?: 'none' | 'pending' | 'complete';
   created_at?: string;
   image_url: string | null;
 };

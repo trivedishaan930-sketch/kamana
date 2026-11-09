@@ -1,18 +1,55 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fail, json, method, queryText, supabase, signView, HttpError } from './_lib/core';
-export default async function handler(req: VercelRequest,res: VercelResponse) {
- if (!method(req,res,'GET')) return;
- try {
-  const search=queryText(req.query.search,'search',100), tag=queryText(req.query.tag,'tag',30), sort=queryText(req.query.sort,'sort',20)||'latest';
-  if(sort!=='latest') throw new HttpError(400,'Invalid sort; only latest is supported');
-  const offset=Number(req.query.offset??0), limit=Number(req.query.limit??24);
-  if(!Number.isInteger(offset)||offset<0||offset>10000||!Number.isInteger(limit)||limit<1||limit>48) throw new HttpError(400,'Invalid pagination');
-  let q=supabase().from('artworks').select('id,creator_id,title,description,tags,model,prompt,sensitive,status,created_at,object_key,profiles!artworks_creator_id_fkey(handle,display_name)',{count:'exact'}).eq('status','approved');
-  if(search) q=q.or(`title.ilike.%${search.replace(/[,%()]/g,' ')}%,description.ilike.%${search.replace(/[,%()]/g,' ')}%`);
-  if(tag) q=q.contains('tags',[tag.toLowerCase()]);
-  q=q.order('created_at',{ascending:false}).range(offset,offset+limit-1);
-  const {data,error,count}=await q; if(error) throw error;
-  const items=await Promise.all((data||[]).map(async (a:any)=>({id:a.id,title:a.title,creator_id:a.creator_id,creator_name:a.profiles?.display_name||'Creator',handle:a.profiles?.handle||'',description:a.description,tags:a.tags,model:a.model,prompt:a.prompt,sensitive:a.sensitive,status:a.status,created_at:a.created_at,image_url:await signView(a.object_key,180)})));
-  return json(res,200,{items,total:count||0,offset,limit});
- } catch(e){return fail(res,e);}
-}
+import { adultEnabled, adultUser, CATEGORIES, Context, db, enumValue, fail, json, method, publicArtwork, requestParam, safeSearch, STYLES, signView, HttpError } from '../_lib/core';
+
+export const onRequestGet = async (c: Context): Promise<Response> => {
+  try {
+    method(c, 'GET');
+    const rating = requestParam(c, 'rating', 16) || 'general';
+    if (rating !== 'general' && rating !== 'adult') throw new HttpError(400, 'Invalid audience rating');
+    if (rating === 'adult') await adultUser(c);
+    const categoryParam = requestParam(c, 'category', 48);
+    const category = categoryParam ? enumValue(categoryParam, CATEGORIES, 'category') : '';
+    const styleParam = requestParam(c, 'style', 48);
+    const style = styleParam ? enumValue(styleParam, STYLES, 'style') : '';
+    if (category === 'adult-fashion-swimwear' && rating !== 'adult') throw new HttpError(400, 'Adult artwork requires an adult audience request');
+    if (rating === 'adult' && category && category !== 'adult-fashion-swimwear') throw new HttpError(400, 'The 18+ collection only contains Fashion & Swimwear');
+    if (style && category && category !== 'indian-folk-traditional') throw new HttpError(400, 'Tradition filters only apply to Indian Folk & Traditional');
+
+    const rawSearch = requestParam(c, 'search', 100);
+    const search = safeSearch(rawSearch);
+    const tag = requestParam(c, 'tag', 30).toLowerCase();
+    const sort = requestParam(c, 'sort', 20) || 'latest';
+    if (sort !== 'latest') throw new HttpError(400, 'Only latest-first sorting is available');
+    const offset = Number(requestParam(c, 'offset', 8) || 0);
+    const limit = Number(requestParam(c, 'limit', 8) || 24);
+    if (!Number.isInteger(offset) || offset < 0 || offset > 10_000 || !Number.isInteger(limit) || limit < 1 || limit > 48) throw new HttpError(400, 'Invalid pagination');
+
+    const client = db(c);
+    let query = client.from('artworks')
+      .select('id,provenance_id,creator_id,object_key,title,description,tags,category,style,audience_rating,ai_generated,ai_tool,ai_model,ai_disclosure,sensitive,status,created_at,profiles!artworks_creator_id_fkey(handle,display_name)', { count: 'exact' })
+      .eq('status', 'approved')
+      .eq('audience_rating', rating);
+    if (category) query = query.eq('category', category);
+    if (style) query = query.eq('style', style);
+    if (tag) query = query.contains('tags', [tag]);
+    if (search) {
+      const [{ data: creators, error: profileError }] = await Promise.all([
+        client.from('profiles').select('id').ilike('display_name', `%${search}%`).limit(50),
+      ]);
+      if (profileError) throw profileError;
+      const creatorIds = (creators || []).map((item) => item.id);
+      const terms = [`title.ilike.%${search}%`, `description.ilike.%${search}%`];
+      if (!search.includes(' ')) terms.push(`tags.cs.{${search}}`);
+      if (creatorIds.length) terms.push(`creator_id.in.(${creatorIds.join(',')})`);
+      query = query.or(terms.join(','));
+    }
+    const { data, error, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+    if (error) throw error;
+    const items = await Promise.all((data || []).map(async (row) => ({
+      ...publicArtwork(row as unknown as Record<string, any>),
+      image_url: await signView(c, row.object_key as string, 180),
+    })));
+    return json({ items, total: count || 0, offset, limit, configured: rating === 'adult' && adultEnabled(c) });
+  } catch (error) {
+    return fail(error);
+  }
+};

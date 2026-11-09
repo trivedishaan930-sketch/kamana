@@ -1,6 +1,5 @@
-SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_URL=https://cgtlvfhvmhqpklkzbuma.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=replace-with-a-local-secret
-KAMNA_ADMIN_EMAIL=sakhisehat09@gmail.com
-KAMNA_RATE_LIMIT_SECRET=replace-with-a-random-secret
-KAMNA_PUBLIC_CONTACT_EMAIL=sakhisehat09@gmail.com
+KAMNA_ADMIN_EMAIL=verified-moderator@example.com
+KAMNA_RATE_LIMIT_SECRET=replace-with-64-hex-characters
 ADULT_SECTION_ENABLED=false

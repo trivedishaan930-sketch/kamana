@@ -1,4 +1,42 @@
-import type {VercelRequest,VercelResponse} from '@vercel/node';
-import {method,json,fail,body,supabase,uuid,text,HttpError,clientFingerprint} from './_lib/core';
-const CATEGORIES=new Set(['copyright','inappropriate-content','harassment','impersonation','other','non-consensual','illegal-content','safety-concern']);
-export default async function handler(req:VercelRequest,res:VercelResponse){if(!method(req,res,'POST'))return;try{const b=body(req),artworkId=uuid(b.artworkId,'artworkId'),type=b.type,category=text(b.category,'category',40,true),details=text(b.details,'details',2000),contactEmail=text(b.contactEmail,'contactEmail',254);if(type!=='content'&&type!=='takedown')throw new HttpError(400,'Invalid report type');if(!CATEGORIES.has(category))throw new HttpError(400,'Invalid category slug');if(contactEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail))throw new HttpError(400,'Invalid contact email');const db=supabase(),fingerprint=clientFingerprint(req),since=new Date(Date.now()-86400000).toISOString();const {count,error:rateError}=await db.from('reports').select('id',{count:'exact',head:true}).eq('submitter_fingerprint',fingerprint).gte('created_at',since);if(rateError)throw rateError;if((count||0)>=5)throw new HttpError(429,'Report limit reached');const {data:existing,error:dedupeError}=await db.from('reports').select('id').eq('artwork_id',artworkId).eq('submitter_fingerprint',fingerprint).eq('category',category).eq('status','open').limit(1).maybeSingle();if(dedupeError)throw dedupeError;if(existing)return json(res,200,{id:existing.id,status:'open',receiptId:existing.id,deduplicated:true});const {data,error}=await db.from('reports').insert({artwork_id:artworkId,type,category,details:details||null,contact_email:contactEmail||null,submitter_fingerprint:fingerprint}).select('id').single();if(error)throw error;return json(res,201,{id:data.id,status:'open',receiptId:data.id});}catch(e){return fail(res,e);}}
+import { bodyJson, clientFingerprint, Context, db, fail, HttpError, json, method, text, uuid } from '../_lib/core';
+
+const REPORT_CATEGORIES = new Set([
+  'prohibited-sexual-content', 'minor-or-ambiguous-age', 'non-consensual-or-deepfake',
+  'copyright-rights', 'unlawful-content', 'other',
+]);
+
+export const onRequestPost = async (c: Context): Promise<Response> => {
+  try {
+    method(c, 'POST');
+    const body = await bodyJson(c);
+    const artworkId = uuid(body.artworkId, 'artworkId');
+    const type = body.type;
+    if (type !== 'content' && type !== 'takedown') throw new HttpError(400, 'Invalid request type');
+    const category = text(body.category, 'category', 40, true);
+    if (!REPORT_CATEGORIES.has(category)) throw new HttpError(400, 'Choose a valid report reason');
+    const details = text(body.details ?? '', 'details', 2000);
+    const contactEmail = text(body.contactEmail ?? '', 'contact email', 254);
+    if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) throw new HttpError(400, 'Invalid contact email');
+
+    const fingerprint = await clientFingerprint(c);
+    const { data, error } = await db(c).rpc('kamna_submit_report', {
+      p_artwork_id: artworkId,
+      p_type: type,
+      p_category: category,
+      p_details: details || null,
+      p_contact_email: contactEmail || null,
+      p_fingerprint: fingerprint,
+    });
+    if (error) {
+      const message = error.message || '';
+      if (/rate limit/i.test(message)) throw new HttpError(429, 'Report limit reached. Please try again later.');
+      if (/approved artwork/i.test(message)) throw new HttpError(404, 'Approved artwork not found');
+      console.error('Report submission failed', error);
+      throw new HttpError(503, 'The report service is temporarily unavailable. Please use the urgent contact path if someone may be at immediate risk.');
+    }
+    if (!data?.id) throw new HttpError(503, 'The report service did not return a receipt');
+    return json({ id: data.id, status: 'open', receiptId: data.id, deduplicated: data.deduplicated === true }, data.deduplicated ? 200 : 201);
+  } catch (error) {
+    return fail(error);
+  }
+};
