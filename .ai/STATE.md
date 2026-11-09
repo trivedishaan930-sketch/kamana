@@ -1,8 +1,8 @@
 # Relay state
 
-- **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-09T10:01:00Z
-- **Current task:** T-001 — establish the AI relay protocol
-- **Recently done:** Reviewed commit 38583da; install, typecheck, and build passed; no blocking errors found.
-- **Next step:** Record the final file list, complete T-001, and push the final relay log.
-- **Blockers:** None. Provider-backed application behavior is intentionally out of scope.
+- **Active agent:** none
+- **Heartbeat (UTC):** 2026-11-09T09:55:00Z (lock released after completion)
+- **Current task:** None — T-001 is complete
+- **Recently done:** Independent final approval recorded; dashboard concurrency/rebase and review-count fixes applied; no app code or secrets changed.
+- **Next step:** A future agent must review this completed handoff before claiming a new task.
+- **Blockers:** GitHub-hosted Actions and real-provider flows remain unverified by design.

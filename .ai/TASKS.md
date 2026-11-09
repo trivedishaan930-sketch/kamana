@@ -2,7 +2,7 @@
 
 | ID | Title | Status | Owner | Claimed at (UTC) | Notes |
 |---|---|---|---|---|---|
-| T-001 | Establish the AI relay protocol and sequential handoff rules | doing | manus-1 | 2026-11-09T09:39:00Z | Docs/workflows only; finish in small commits. |
+| T-001 | Establish the AI relay protocol and sequential handoff rules | done | manus-1 | 2026-11-09T09:39:00Z | Independent final approval recorded; install, typecheck, build, guard, and boundary checks passed. |
 | T-002 | Configure provider-backed auth, profiles, and account isolation | todo | unassigned | — | Keep open until real Supabase flows are verified. |
 | T-003 | Complete artwork upload validation, provenance, and private storage | todo | unassigned | — | Real-provider verification required. |
 | T-004 | Complete approved-only moderation, reports, takedowns, and audit trail | todo | unassigned | — | Security Auditor review required. |

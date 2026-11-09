@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: kamana-relay-dashboard
+  cancel-in-progress: false
+
 jobs:
   dashboard:
     runs-on: ubuntu-latest
@@ -24,7 +28,7 @@ jobs:
           import re
           state = Path('.ai/STATE.md').read_text()
           tasks = Path('.ai/TASKS.md').read_text()
-          reviews = list(Path('.ai/REVIEWS').glob('*.md')) if Path('.ai/REVIEWS').exists() else []
+          reviews = [p for p in Path('.ai/REVIEWS').glob('*.md') if p.name != 'REVIEW_TEMPLATE.md'] if Path('.ai/REVIEWS').exists() else []
           errors = Path('.ai/ERRORS.md').read_text() if Path('.ai/ERRORS.md').exists() else ''
           questions = Path('.ai/OWNER_QUESTIONS.md').read_text() if Path('.ai/OWNER_QUESTIONS.md').exists() else ''
           heartbeat = re.search(r'Heartbeat \(UTC\):\*\*\s*([^\n]+)', state)
@@ -66,6 +70,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin main
           git add .ai/DASHBOARD.md
           if git diff --cached --quiet; then exit 0; fi
           git commit -m '[github-actions] refresh relay dashboard'
