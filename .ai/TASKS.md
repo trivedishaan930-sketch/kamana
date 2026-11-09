@@ -3,7 +3,7 @@
 | ID | Title | Status | Owner | Claimed at (UTC) | Notes |
 |---|---|---|---|---|---|
 | T-001 | Establish the AI relay protocol and sequential handoff rules | done | manus-1 | 2026-11-09T09:39:00Z | Independent final approval recorded; install, typecheck, build, guard, and boundary checks passed. |
-| T-007 | Execute the master directive docs-only phase 0 audit and product documentation | doing | manus-1 | 2026-11-09T10:12:00Z | Storage and app code are out of scope until roadmap approval. |
+| T-007 | Execute the master directive docs-only phase 0 audit and product documentation | done | manus-1 | 2026-11-09T10:12:00Z | Docs-only workstreams A/B/C completed; owner roadmap approval is the next gate. |
 | T-008 | Verify AI-tool repository conventions and maintain pointer files | done | manus-1 | 2026-11-09T10:14:00Z | Official sources recorded in `.ai/TOOLS.md`; unverified conventions are marked. |
 | T-013 | Phase 0 weekly security audit and dependency update rhythm | todo | unassigned | — | Keep storage separate. |
 | T-012 | Private beta with 5–10 real creators and accessibility/performance baseline | todo | unassigned | — | Requires owner approval and real participants. |

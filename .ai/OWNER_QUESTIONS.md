@@ -8,7 +8,7 @@ What I already did: phase 0 audit, tool registry, product docs, sitemap reconcil
 
 What you need to do:
 1. Phone में GitHub खोलकर `docs/product/ROADMAP.md` पढ़ें।
-2. Repository के **Settings → Code security and analysis** में उपलब्ध Dependabot, secret scanning, push protection और CodeQL status का screenshot भेजें।
-3. इसी chat में केवल **Yes** या **No** लिखें।
+2. अगर कोई बदलाव चाहिए तो इस एक सवाल पर **No** लिखें; अगर roadmap ठीक है तो **Yes** लिखें।
+3. इसी chat में केवल **Yes** या **No** भेजें।
 
 Reply **Yes** या **No**.
