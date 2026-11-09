@@ -23,3 +23,16 @@ What I already did: repo में Direct Upload के लिए gated GitHub A
 What you need to do: `docs/product/OWNER_GUIDE.md` के Cloudflare Pages deployment section के steps पूरे करें—GitHub Actions में scoped `CLOUDFLARE_API_TOKEN` और `CLOUDFLARE_ACCOUNT_ID`; Cloudflare Pages में `SUPABASE_SERVICE_ROLE_KEY` और `KAMNA_RATE_LIMIT_SECRET` को secrets सहित runtime variables; verified moderator email; Supabase SMTP/Auth redirect; फिर GitHub Actions variable `CF_PAGES_DEPLOY_ENABLED=true`। Secret values chat में न भेजें।
 
 Reply **Yes** only after the setup is complete; reply **No** if you need the setup steps explained first. इसके बाद मैं secret values देखे बिना configuration names/status verify करूँगा और deployment/test पूरा करूँगा।
+
+## GitHub Actions deploy gate — owner action needed
+
+Problem: workflow का build/typecheck सफल है, लेकिन GitHub API integration `CF_PAGES_DEPLOY_ENABLED` variable set नहीं कर सकती; इसलिए production deploy अभी रुका है।
+
+What I already did: workflow और latest run `42675994192` verify किए; install, typecheck और build pass हैं; deploy step केवल gate unset होने के कारण skip हुआ। Secret values को access नहीं किया।
+
+What you need to do:
+1. GitHub app में `kamana` repo खोलें और **Settings → Secrets and variables → Actions → Variables** पर जाएँ।
+2. Repository variable `CF_PAGES_DEPLOY_ENABLED` बनाएँ या edit करके value `true` रखें; secret values chat में न भेजें।
+3. उसी screen का screenshot भेजें जिसमें variable का नाम और value दिखे, लेकिन कोई secret value नहीं।
+
+Reply **Yes** after this is done, or **No** if you want the steps explained first.
