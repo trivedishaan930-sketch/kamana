@@ -1,6 +1,6 @@
 # Kamna agent relay
 
-Read in order: `AGENTS.md`, `.ai/STATE.md`, `.ai/TASKS.md`, `plan.md`, `TODO.md`, `.ai/DECISIONS.md`.
+Read in order: `AGENTS.md`, `.ai/STATE.md`, `.ai/CONTEXT.md`, the claimed task in `.ai/TASKS.md`, `docs/MASTER_DIRECTIVE.md`, `plan.md`, `TODO.md`, `.ai/DECISIONS.md`. The master directive is subordinate to these relay rules.
 
 ## Strict single-writer protocol
 
@@ -20,4 +20,4 @@ Only work inside this repository and the assigned task. Never scan, probe, or te
 
 `plan.md` and `TODO.md` are the source of truth. Record alternatives or changes in `.ai/DECISIONS.md` before updating them in the same commit. Significant changes need a review file in `.ai/REVIEWS/`; auth, storage, RLS, uploads, secrets, and moderation also need Security Auditor review. The author cannot review or score their own change.
 
-Use `.ai/AGENTS_REGISTRY.md`, `.ai/ROLES.md`, `.ai/RUBRICS.md`, `.ai/OWNER_QUESTIONS.md`, `.ai/ERRORS.md`, and `.ai/REVIEWS/` for relay communication. GitHub Actions may maintain `.ai/DASHBOARD.md`; no automation outside GitHub Actions is added without an owner-approved decision.
+Read `docs/MASTER_DIRECTIVE.md` before task work. Use `.ai/AGENTS_REGISTRY.md`, `.ai/ROLES.md`, `.ai/RUBRICS.md`, `.ai/OWNER_QUESTIONS.md`, `.ai/ERRORS.md`, and `.ai/REVIEWS/` for relay communication. GitHub Actions may maintain `.ai/DASHBOARD.md`; no automation outside GitHub Actions is added without an owner-approved decision.

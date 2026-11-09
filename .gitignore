@@ -7,3 +7,6 @@ dist/
 !.env.example
 *.tsbuildinfo
 *.log
+
+# TypeScript incremental build output
+tsconfig.tsbuildinfo

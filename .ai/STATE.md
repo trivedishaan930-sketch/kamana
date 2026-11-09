@@ -1,8 +1,8 @@
 # Relay state
 
-- **Active agent:** none
-- **Heartbeat (UTC):** 2026-11-09T09:55:00Z (lock released after completion)
-- **Current task:** None — T-001 is complete
-- **Recently done:** Independent final approval recorded; dashboard concurrency/rebase and review-count fixes applied; no app code or secrets changed.
-- **Next step:** A future agent must review this completed handoff before claiming a new task.
-- **Blockers:** GitHub-hosted Actions and real-provider flows remain unverified by design.
+- **Active agent:** manus-1
+- **Heartbeat (UTC):** 2026-11-09T10:12:00Z
+- **Current task:** T-007 — execute master directive docs-only phase 0 audit and product documentation
+- **Recently done:** Read the master directive and addendums; wrote status, context, repo map, architecture, known issues, and definition of done.
+- **Next step:** Add the tool registry and phase 0/1 product documentation with sourced claims.
+- **Blockers:** Roadmap approval is not yet recorded. Storage and app code are intentionally out of scope.
