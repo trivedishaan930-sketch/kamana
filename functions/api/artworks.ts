@@ -1,0 +1,3 @@
+import type {VercelRequest,VercelResponse} from '@vercel/node';
+import {method,json,fail,requireUser,supabase,signView} from '../_lib/core';
+export default async function handler(req:VercelRequest,res:VercelResponse){if(!method(req,res,'GET'))return;try{const user=await requireUser(req),{data,error}=await supabase().from('artworks').select('id,title,description,tags,model,prompt,sensitive,status,created_at,updated_at,object_key').eq('creator_id',user.id).order('created_at',{ascending:false}).limit(100);if(error)throw error;return json(res,200,{items:await Promise.all((data||[]).map(async a=>({...a,imageUrl:a.status==='rejected'||a.status==='removed'?null:await signView(a.object_key,120)})))});}catch(e){return fail(res,e);}}

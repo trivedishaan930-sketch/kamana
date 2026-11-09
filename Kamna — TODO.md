@@ -1,0 +1,32 @@
+# Kamna — TODO
+
+Production outcomes remain open until the relevant provider services are configured and the public deployment demonstrably supports them. Kamna is an AI-art community, not a pornography site. The separate 18+ collection is limited to non-explicit fashion/swimwear and cannot override law or provider policies.
+
+## Artwork categories and Indian visual traditions
+- [ ] Provide a responsive public gallery with searchable categories for General Illustration, Festival & Celebration, Nature & Wildlife, Fantasy & Mythology, Portrait & Character, Fashion & Editorial, Architecture & Places, Abstract & Experimental, Indian Folk & Traditional, and a separate 18+ Fashion & Swimwear collection; enable search, tags, latest sorting, pagination/load-more, artwork detail pages and free downloads for approved images.
+- [ ] Feature an Indian Folk & Traditional collection with separate discoverable labels/tags for Madhubani/Mithila, Warli, Gond, Odisha Pattachitra, Rajasthani Phad, Kalamkari, Cheriyal and Thanjavur/Tanjore; do not flatten these into one style or incorrectly call each one tribal/classical. For AI works inspired by a living or regional tradition, disclose that they are AI-inspired interpretations, not traditional/community-created artworks.
+
+## AI-only uploads, labels, and audience ratings
+- [ ] Accept only AI-generated artwork; require the submitter to confirm AI generation and rights to publish; collect the AI tool/model and process/prompt details when available; keep submissions pending for human review; do not imply that manual confirmation is automated AI detection.
+- [ ] Show a prominent AI-generated label on every approved card, artwork page and download context; store a stable unique Kamna artwork/provenance ID and AI disclosure/tool metadata; do not provide controls to hide the AI label; preserve provenance in downloaded files where technically feasible and do not claim full legal compliance until verified.
+- [ ] Provide a separate 18+ Fashion & Swimwear category for fictional, clearly adult-looking subjects and non-nude/non-explicit outfits only; keep it out of the default gallery and behind a distinct age gate and visible audience rating. Self-declaration is not identity or reliable age verification. If law or a provider requires stronger verification or written approval, keep this category unavailable publicly until that control is implemented.
+- [ ] Reject nudity, sexual acts, pornography or sexually explicit content; minors or ambiguous-age subjects; sexualized minors; non-consensual intimate imagery; real-person sexual deepfakes or unauthorized likenesses; deceptive impersonation; illegal material; and content the uploader lacks rights to publish.
+
+## Accounts, uploads, and storage
+- [ ] Provide real email sign-up/sign-in with verified sessions, logout, creator profiles and account controls via Supabase Auth; do not present a demo/local account as real, and do not let one creator alter another creator’s records.
+- [ ] Provide a publishing form accepting JPG, PNG and WebP up to 8 MiB, with browser and server checks; preview; title up to 80 characters; description up to 600 characters; up to 8 tags; category and audience rating; AI-generation disclosure; optional model/tool/process metadata; sensitive-preview option; rights confirmation; and clear pending-review feedback.
+- [ ] Store image bytes in a private Supabase Storage bucket and metadata, ownership, status and timestamps in Supabase Postgres; use server-side privileged Storage access; inspect actual image bytes/type and size; expose view/download only for approved works; delete stored objects on completed takedown/removal; keep privileged keys out of browser code.
+- [ ] Enforce a maximum of 5 upload reservations per creator per rolling day, a maximum of 8 MiB per image, and a hard storage ceiling of 750 MiB, below Supabase Free’s listed 1 GB Storage allowance; fail closed on quota/database errors.
+
+## Moderation, reports, and platform rules
+- [ ] Keep every submission private and pending moderation until an authorized moderator approves it; public search, profile pages and downloads must contain approved works only.
+- [ ] Provide an admin-only moderation queue with artwork/creator/category/audience/AI-disclosure context and controls to approve, reject, remove and retry failed object cleanup; record moderator, timestamp, reason and state in a persistent audit trail.
+- [ ] Let a public visitor or signed-in user report an artwork or submit a categorized takedown/rights request; persist reason, optional private contact email, time and status; show the actual receipt ID and result; route urgent intimate-image/impersonation complaints to an operationally staffed contact path.
+- [ ] Publish clear community rules, privacy notice, terms, download/rights terms, takedown/copyright information and contact/grievance details; do not promise timelines, age verification or email notifications that are not staffed/configured.
+- [ ] Show prominent AI-generated provenance labels and unique artwork IDs; preserve platform provenance on downloads where feasible; keep user-facing safety, age-gate and AI disclosures accurate and visible.
+
+## Deployment and free-tier operations
+- [ ] Deploy the public beta with Cloudflare Pages/Functions and Supabase Auth/Postgres/private Storage after the owner’s resources, domain/URLs, production secrets, SMTP and moderator account are configured; do not use Vercel Hobby as production hosting for the public multi-creator service.
+- [ ] Keep the supplied `sakhisehat09@gmail.com` private for admin/contact configuration except where a visible grievance/takedown contact is needed; do not expose privileged Supabase keys.
+- [ ] Document the current free-tier limits: Cloudflare Workers/Pages Functions request and CPU limits; Supabase database, private Storage, egress and auth/email limits; free projects may pause after inactivity. Do not promise unlimited or guaranteed zero-cost service.
+- [ ] Do not call the platform live until public deployment is confirmed and real sign-in, durable upload, pending-to-approved visibility, categories, AI labels, downloads, report/takedown intake, moderator actions and object deletion work with the selected providers.
