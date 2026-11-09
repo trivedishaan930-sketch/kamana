@@ -39,13 +39,13 @@ Reply **Yes** after this is done, or **No** if you want the steps explained firs
 
 ## Production account API configuration — owner action needed
 
-Problem: login/confirmation अब काम कर रहा है, लेकिन My account का data API HTTP 503 दे रहा है: `The service is not configured yet.` इसका मतलब Cloudflare Pages Functions को Production runtime binding नहीं मिल रही।
+Problem: login/confirmation अब काम कर रहा है। Safe runtime vars डालने के बाद public data API HTTP 200 दे रहा है; अब moderator access के लिए सिर्फ `KAMNA_ADMIN_EMAIL` encrypted Production secret बाकी है।
 
-What I already did: advanced login, forgot-password, password-reset, confirmation-resend और safe account messaging code deploy किया; build और deployment सफल हैं। Public `/api/gallery` probe से runtime blocker independently verify किया।
+What I already did: advanced login, forgot-password, password-reset, confirmation-resend और safe account messaging code deploy किया; `SUPABASE_URL` और `ADULT_SECTION_ENABLED=false` को `wrangler.toml` में जोड़कर redeploy किया; `/api/gallery` अब HTTP 200 दे रहा है।
 
 What you need to do:
-1. Cloudflare Dashboard → Workers & Pages → Pages → `kamna` → Settings → Variables and Secrets → **Production** खोलें।
-2. नाम और scope verify/save करें: `SUPABASE_URL` (plain), `SUPABASE_SERVICE_ROLE_KEY` (secret), `KAMNA_ADMIN_EMAIL` (plain), `KAMNA_RATE_LIMIT_SECRET` (secret), `ADULT_SECTION_ENABLED` = `false`; values chat में न भेजें।
-3. Save के बाद यहाँ **Yes** लिखें; मैं redeploy करके `/api/gallery` और My account फिर verify करूँगा।
+1. Cloudflare Dashboard → Workers & Pages → Pages → `kamna` → Settings → Variables and Secrets → **Production** में `+ Add` खोलें और Type **Secret** रखें।
+2. Name `KAMNA_ADMIN_EMAIL` रखें और value में वही exact verified moderator email डालें; existing secrets को delete न करें और value chat में न भेजें।
+3. Save के बाद यहाँ **Yes** लिखें; मैं redeploy करके moderator/API और My account फिर verify करूँगा।
 
 Reply **Yes** after Production bindings are saved, or **No** if you need the steps explained first.
