@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          files=$(git ls-files -z | grep -zZvE '(^|/)(\.git|node_modules|dist)(/|$)' | xargs -0 -r printf '%s\n')
+          files=$(git ls-files -z | grep -zZvE '(^|/)(\.git|node_modules|dist)(/|$)|(^|/)(\.env|\.dev\.vars)\.example$' | xargs -0 -r printf '%s\n')
           if [ -z "$files" ]; then exit 0; fi
           if printf '%s\n' "$files" | xargs grep -nE --binary-files=without-match -I -E '(sk_live_[A-Za-z0-9]{12,}|AIza[0-9A-Za-z_-]{20,}|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*[^[:space:]]+|CLOUDFLARE_API_TOKEN[[:space:]]*=[[:space:]]*[^[:space:]]+)' -- 2>/dev/null; then
             echo 'An obvious API-key pattern was found in tracked files.' >&2
