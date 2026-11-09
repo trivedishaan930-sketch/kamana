@@ -174,15 +174,25 @@ function Upload({ session }: { session: Session | null }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [adultConfigured, setAdultConfigured] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const tagValues = tags.split(',').map(value => value.trim()).filter(Boolean);
+  const invalidTags = tagValues.length > 8 || tagValues.some(value => value.length > 30);
   useEffect(() => { api<{configured?:boolean}>('gallery?rating=adult&offset=0&limit=1').then(r => setAdultConfigured(r.configured === true)).catch(() => setAdultConfigured(false)); }, []);
+  useEffect(() => {
+    if (!file) { setPreviewUrl(''); return; }
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!session) { setMessage('Sign in with a confirmed account before submitting artwork.'); return; }
+    if (invalidTags) { setMessage('Use at most 8 tags, each no longer than 30 characters.'); return; }
     if (!file || !rights || !confirmed || !policyConfirmed || (audienceRating === 'adult' && !adultConfigured)) return;
     setBusy(true);
     setMessage('');
     try {
-      const form = new FormData(); form.append('file', file); form.append('title', title); form.append('description', description); form.append('tags', JSON.stringify(tags.split(',').map(value => value.trim()).filter(Boolean).slice(0, 8))); form.append('category', audienceRating === 'adult' ? 'adult-fashion-swimwear' : category); form.append('style', style || 'other'); form.append('rating', audienceRating); form.append('model', model); form.append('tool', tool); form.append('prompt', prompt); form.append('sensitive', String(sensitive)); form.append('rightsConfirmed', String(rights)); form.append('aiGenerated', 'true'); form.append('aiDisclosureConfirmed', String(confirmed)); form.append('contentPolicyConfirmed', String(policyConfirmed));
+      const form = new FormData(); form.append('file', file); form.append('title', title); form.append('description', description); form.append('tags', JSON.stringify(tagValues)); form.append('category', audienceRating === 'adult' ? 'adult-fashion-swimwear' : category); form.append('style', style || 'other'); form.append('rating', audienceRating); form.append('model', model); form.append('tool', tool); form.append('prompt', prompt); form.append('sensitive', String(sensitive)); form.append('rightsConfirmed', String(rights)); form.append('aiGenerated', 'true'); form.append('aiDisclosureConfirmed', String(confirmed)); form.append('contentPolicyConfirmed', String(policyConfirmed));
       const result = await api<{ artwork: Artwork }>('uploads', { method: 'POST', body: form });
       setMessage(`Submission received with status “${result.artwork.status || 'pending'}”. It will not appear publicly unless approved by a moderator.`);
     } catch (error) { setMessage(errorMessage(error, 'Unable to submit. Please try again.')); }
@@ -192,22 +202,23 @@ function Upload({ session }: { session: Session | null }) {
   return <Page title="Submit a new work"><Rules/>{!supabaseConfigured && <Setup/>}<div className="upload-layout"><form className="form-card" onSubmit={submit}>
     <h2>Artwork details</h2>{!session && <div className="notice-banner">A confirmed sign-in is required. <Link to="/signin"><u>Sign in or create an account</u></Link>.</div>}
     <label className="file-drop"><input aria-label="Artwork image file" type="file" accept="image/jpeg,image/png,image/webp" required onChange={event => setFile(event.target.files?.[0] || null)}/><UploadCloud size={22}/><strong>{file?.name || 'Select a JPG, PNG, or WebP image'}</strong><small>Maximum 8 MiB. Nude or sexual uploads are not permitted.</small></label>
+    {previewUrl && <img className="upload-preview" src={previewUrl} alt={file ? `Local preview of ${file.name}` : 'Selected artwork preview'}/>}
     {invalidFile && <p role="alert">Choose JPG, PNG, or WebP up to 8 MiB.</p>}
     <div className="field"><label htmlFor="title">Title</label><input id="title" required maxLength={80} value={title} onChange={event => setTitle(event.target.value)}/></div>
     <div className="field"><label htmlFor="description">Description</label><textarea id="description" maxLength={600} value={description} onChange={event => setDescription(event.target.value)}/></div>
     <div className="field"><label htmlFor="category">Category</label><select id="category" value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></div>
     {category === 'indian-folk-traditional' && <div className="field"><label htmlFor="style">Tradition / style (distinct labels)</label><select id="style" value={style} onChange={e=>setStyle(e.target.value)}><option value="">Choose a style</option>{indianStyles.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select><small>AI-inspired interpretation only; not traditional or community-created work.</small></div>}
     <div className="field"><label htmlFor="rating">Audience rating</label><select id="rating" value={audienceRating} onChange={e=>setAudienceRating(e.target.value as 'general'|'adult')}><option value="general">General audience</option>{adultConfigured&&<option value="adult">18+ Fashion & Swimwear</option>}</select>{!adultConfigured&&<small>18+ submissions are unavailable while this collection is not explicitly enabled by the backend.</small>}</div>
-    <div className="field"><label htmlFor="tags">Tags (comma-separated, up to 8)</label><input id="tags" value={tags} onChange={event => setTags(event.target.value)}/></div>
-    <div className="field"><label htmlFor="model">AI model</label><input id="model" value={model} onChange={event => setModel(event.target.value)}/></div>
-    <div className="field"><label htmlFor="tool">AI tool</label><input id="tool" value={tool} onChange={event => setTool(event.target.value)}/></div>
-    <div className="field"><label htmlFor="prompt">Prompt / process note</label><textarea id="prompt" value={prompt} onChange={event => setPrompt(event.target.value)}/></div>
+    <div className="field"><label htmlFor="tags">Tags (comma-separated, up to 8; 30 characters each)</label><input id="tags" maxLength={247} value={tags} onChange={event => setTags(event.target.value)}/>{invalidTags && <small role="alert">Use at most 8 tags, each no longer than 30 characters.</small>}</div>
+    <div className="field"><label htmlFor="model">AI model</label><input id="model" maxLength={100} value={model} onChange={event => setModel(event.target.value)}/></div>
+    <div className="field"><label htmlFor="tool">AI tool</label><input id="tool" maxLength={100} value={tool} onChange={event => setTool(event.target.value)}/></div>
+    <div className="field"><label htmlFor="prompt">Prompt / process note</label><textarea id="prompt" maxLength={1000} value={prompt} onChange={event => setPrompt(event.target.value)}/></div>
     <label className="check-row"><input type="checkbox" checked={sensitive} onChange={event => setSensitive(event.target.checked)}/>Mark thumbnail sensitive</label>
     <label className="check-row"><input type="checkbox" checked={rights} onChange={event => setRights(event.target.checked)} required/>I own this work or hold rights to publish it.</label>
     <label className="check-row"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} required/>I explicitly confirm this image is AI-generated.</label>
     <label className="check-row"><input type="checkbox" checked={policyConfirmed} onChange={event => setPolicyConfirmed(event.target.checked)} required/>I confirm this upload follows the content rules above.</label>
     {message && <p role="status" className="notice-banner">{message}</p>}
-    <button className="button-primary" disabled={busy || !session || !supabaseConfigured || invalidFile}>{busy ? 'Submitting…' : 'Upload for review'}</button>
+    <button className="button-primary" disabled={busy || !session || !supabaseConfigured || invalidFile || invalidTags}>{busy ? 'Submitting…' : 'Upload for review'}</button>
   </form><aside className="side-card"><h2>Private review first</h2><p>Images upload same-origin to private Supabase Storage and submissions remain pending. Uploads are never published instantly.</p><p>{rules}</p></aside></div></Page>;
 }
 
@@ -258,22 +269,29 @@ function ReportPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  function extractArtworkId(value: string): string {
+    const input = value.trim();
+    try {
+      const path = new URL(input, window.location.origin).pathname;
+      return path.match(/\/artwork\/([^/]+)\/?$/i)?.[1] || input;
+    } catch { return input; }
+  }
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setMessage('');
     try {
-      const receipt = await api<{ id: string; status: 'open' }>('reports', { method: 'POST', body: JSON.stringify({ artworkId, category, details, contactEmail: email || undefined, type }) });
+      const receipt = await api<{ id: string; status: 'open' }>('reports', { method: 'POST', body: JSON.stringify({ artworkId: extractArtworkId(artworkId), category, details, contactEmail: email || undefined, type }) });
       setMessage(`Report submitted. Receipt: ${receipt.id}. Status: ${receipt.status}. Save this receipt to follow up; intake does not mean the artwork has been removed.`);
     } catch (error) { setMessage(errorMessage(error, 'Request could not be submitted.')); }
     finally { setBusy(false); }
   }
-  return <Page title="Report or request takedown"><p className="hero-copy">This form is available without signing in. Provide the artwork ID or link and a reason. Do not include sensitive information unless necessary.</p><form className="form-card report-form" onSubmit={submit}>
-    <div className="field"><label htmlFor="artid">Artwork ID</label><input id="artid" required value={artworkId} onChange={event => setArtworkId(event.target.value)}/></div>
+  return <Page title="Report or request takedown"><p className="hero-copy">This form is available without signing in. Provide an artwork ID or a full artwork link and a reason. Do not include sensitive information unless necessary.</p><form className="form-card report-form" onSubmit={submit}>
+    <div className="field"><label htmlFor="artid">Artwork ID or artwork link</label><input id="artid" required maxLength={2048} value={artworkId} onChange={event => setArtworkId(event.target.value)} placeholder="Paste a Kamna artwork URL or ID"/></div>
     <div className="field"><label htmlFor="request-type">Request type</label><select id="request-type" value={type} onChange={event => setType(event.target.value as 'content' | 'takedown')}><option value="content">Content report</option><option value="takedown">Takedown / rights request</option></select></div>
     <div className="field"><label htmlFor="category">Category</label><select id="category" required value={category} onChange={event => setCategory(event.target.value)}><option value="">Choose a reason</option>{reportCategories.map(([slug, label]) => <option value={slug} key={slug}>{label}</option>)}</select></div>
-    <div className="field"><label htmlFor="details">Details (optional)</label><textarea id="details" value={details} onChange={event => setDetails(event.target.value)}/></div>
-    <p>For a report or takedown contact path, email <a href="mailto:sakhisehat09@gmail.com">sakhisehat09@gmail.com</a>. No response time is guaranteed.</p><div className="field"><label htmlFor="contact">Contact email (optional; kept private)</label><input id="contact" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
+    <div className="field"><label htmlFor="details">Details (optional)</label><textarea id="details" maxLength={2000} value={details} onChange={event => setDetails(event.target.value)}/></div>
+    <p>For a report or takedown contact path, email <a href="mailto:sakhisehat09@gmail.com">sakhisehat09@gmail.com</a>. No response time is guaranteed.</p><div className="field"><label htmlFor="contact">Contact email (optional; kept private)</label><input id="contact" type="email" maxLength={254} autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
     {message && <p role="status" className="notice-banner">{message}</p>}<button className="button-primary" disabled={busy}>{busy ? 'Sending…' : 'Submit request'}</button>
   </form></Page>;
 }
