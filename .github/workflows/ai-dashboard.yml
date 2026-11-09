@@ -1,0 +1,72 @@
+name: AI relay dashboard
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Regenerate dashboard
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import re
+          state = Path('.ai/STATE.md').read_text()
+          tasks = Path('.ai/TASKS.md').read_text()
+          reviews = list(Path('.ai/REVIEWS').glob('*.md')) if Path('.ai/REVIEWS').exists() else []
+          errors = Path('.ai/ERRORS.md').read_text() if Path('.ai/ERRORS.md').exists() else ''
+          questions = Path('.ai/OWNER_QUESTIONS.md').read_text() if Path('.ai/OWNER_QUESTIONS.md').exists() else ''
+          heartbeat = re.search(r'Heartbeat \(UTC\):\*\*\s*([^\n]+)', state)
+          active = re.search(r'Active agent:\*\*\s*([^\n]+)', state)
+          rows = re.findall(r'^\|\s*(T-\d+)\s*\|.*?\|\s*(todo|doing|done|blocked)\s*\|', tasks, re.M)
+          counts = {key: sum(status == key for _, status in rows) for key in ('todo', 'doing', 'done', 'blocked')}
+          stale = 'unknown'
+          if heartbeat:
+              try:
+                  stamp = datetime.fromisoformat(heartbeat.group(1).strip().replace('Z', '+00:00'))
+                  stale = 'yes' if (datetime.now(timezone.utc) - stamp).total_seconds() > 3 * 3600 else 'no'
+              except ValueError:
+                  stale = 'invalid timestamp'
+          open_questions = [line for line in questions.splitlines() if line.startswith('- ') and 'No open' not in line]
+          flags = []
+          if stale != 'no': flags.append(f'stale or invalid heartbeat: {stale}')
+          if counts['done'] and len(reviews) <= counts['done']: flags.append('a done task may lack an independent review')
+          if re.search(r'(sk_live_|AIza|SUPABASE_SERVICE_ROLE_KEY\s*=|CLOUDFLARE_API_TOKEN\s*=)', state + tasks + errors): flags.append('possible secret pattern in relay records')
+          if open_questions: flags.append('owner questions are open')
+          out = [
+              '# AI relay dashboard', '',
+              f'Generated (UTC): {datetime.now(timezone.utc).isoformat()}',
+              f'Active agent: {active.group(1).strip() if active else "unknown"}',
+              f'Heartbeat: {heartbeat.group(1).strip() if heartbeat else "unknown"}',
+              f'Stale lock (>3h): {stale}', '',
+              '## Tasks',
+              f'- todo: {counts["todo"]}', f'- doing: {counts["doing"]}', f'- done: {counts["done"]}', f'- blocked: {counts["blocked"]}', '',
+              f'Pending review files: {len(reviews)}',
+              f'Open owner-question lines: {len(open_questions)}',
+              f'Error log entries: {max(0, len(errors.splitlines()) - 6)}', '',
+              '## Flags',
+          ]
+          out += [f'- {flag}' for flag in flags] or ['- none detected by this lightweight check']
+          Path('.ai/DASHBOARD.md').write_text('\n'.join(out) + '\n')
+          PY
+      - name: Commit dashboard if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .ai/DASHBOARD.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m '[github-actions] refresh relay dashboard'
+          git push

@@ -1,0 +1,57 @@
+name: AI relay checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  repository-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Reject committed environment files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files -z | grep -zEq '(^|/)(\.env|\.dev\.vars)$'; then
+            echo 'A non-example environment file is tracked.' >&2
+            exit 1
+          fi
+      - name: Reject obvious credential assignments
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=$(git ls-files -z | grep -zZvE '(^|/)(\.git|node_modules|dist)(/|$)' | xargs -0 -r printf '%s\n')
+          if [ -z "$files" ]; then exit 0; fi
+          if printf '%s\n' "$files" | xargs grep -nE --binary-files=without-match -I -E '(sk_live_[A-Za-z0-9]{12,}|AIza[0-9A-Za-z_-]{20,}|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*[^[:space:]]+|CLOUDFLARE_API_TOKEN[[:space:]]*=[[:space:]]*[^[:space:]]+)' -- 2>/dev/null; then
+            echo 'An obvious API-key pattern was found in tracked files.' >&2
+            exit 1
+          fi
+      - name: Set up pnpm
+        if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - name: Set up Node.js
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        if: ${{ hashFiles('package.json') != '' && hashFiles('pnpm-lock.yaml') != '' }}
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.typecheck ? 0 : 1)"; then pnpm typecheck; else echo 'No typecheck script; skipped.'; fi
+      - name: Build
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then pnpm build; else echo 'No build script; skipped.'; fi
