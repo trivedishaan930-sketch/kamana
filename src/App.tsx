@@ -68,7 +68,60 @@ function SignIn({ onClose }: { onClose?: () => void }) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [showResend, setShowResend] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const client = supabase;
+    if (!client) return;
+    let active = true;
+    async function completeConfirmation() {
+      const params = new URLSearchParams(location.search);
+      const code = params.get('code');
+      const redirectError = params.get('error_description') || params.get('error');
+      if (redirectError) {
+        setMessage(decodeURIComponent(redirectError.replace(/\+/g, ' ')));
+        return;
+      }
+      if (!code) return;
+      setBusy(true);
+      const { data, error } = await client!.auth.exchangeCodeForSession(code);
+      if (!active) return;
+      if (error) {
+        setMessage(errorMessage(error, 'The confirmation link is invalid or has expired. Request a new confirmation email.'));
+        setShowResend(true);
+      } else if (data.session) {
+        setMessage('Email confirmed. You are signed in.');
+        onClose?.();
+        navigate('/account', { replace: true });
+      }
+      setBusy(false);
+    }
+    void completeConfirmation();
+    return () => { active = false; };
+  }, [navigate, onClose]);
+
+  async function resendConfirmation() {
+    if (!supabase || !email.trim()) {
+      setMessage('Enter the same email address used for signup first.');
+      return;
+    }
+    setResending(true);
+    setMessage('');
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.trim(),
+        options: { emailRedirectTo: `${location.origin}/signin` },
+      });
+      if (error) throw error;
+      setMessage('A new confirmation email was requested. Check Inbox and Spam.');
+      setShowResend(false);
+    } catch (error) {
+      setMessage(errorMessage(error, 'Could not resend the confirmation email. Please wait and try again.'));
+    } finally { setResending(false); }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -79,10 +132,16 @@ function SignIn({ onClose }: { onClose?: () => void }) {
       if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/signin` } });
         if (error) throw error;
+        setShowResend(!data.session);
         setMessage(data.session ? 'Account created and signed in.' : 'Check your email to confirm your account before signing in.');
+        if (data.session) { onClose?.(); navigate('/account'); }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          const code = (error as { code?: string }).code;
+          setShowResend(code === 'email_not_confirmed' || /confirm|verify|not active/i.test(error.message));
+          throw error;
+        }
         onClose?.();
         navigate('/account');
       }
@@ -98,9 +157,10 @@ function SignIn({ onClose }: { onClose?: () => void }) {
       <div className="field"><label htmlFor="email">Email</label><input id="email" type="email" required autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
       <div className="field"><label htmlFor="password">Password</label><input id="password" type="password" required minLength={8} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)}/></div>
       {message && <p role="status">{message}</p>}
+      {showResend && <button type="button" className="button-secondary" disabled={resending || busy} onClick={() => void resendConfirmation()}>{resending ? 'Sending…' : 'Resend confirmation email'}</button>}
       <button className="button-primary" disabled={busy || !supabase}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Sign up'}</button>
     </form>
-    <button className="button-quiet" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(''); }}>{mode === 'signin' ? 'Need an account? Sign up' : 'Already registered? Sign in'}</button>
+    <button className="button-quiet" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setMessage(''); setShowResend(false); }}>{mode === 'signin' ? 'Need an account? Sign up' : 'Already registered? Sign in'}</button>
   </section><Rules/></Page>;
 }
 
