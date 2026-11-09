@@ -30,3 +30,21 @@ The Ministry of Electronics and Information Technology’s 10 February 2026 amen
 [8]: https://cloud.google.com/terms/aup "Google Cloud Acceptable Use Policy"
 [9]: https://firebase.google.com/terms "Terms of Service for Firebase Services"
 [10]: https://www.meity.gov.in/static/uploads/2026/02/550681ab908f8afb135b0ad42816a1c9.pdf "Information Technology Intermediary Rules Amendment, 10 February 2026"
+
+## Hosting free-tier comparison — checked 9 November 2026
+
+Vercel Hobby is $0/month but limited to personal, non-commercial use; Vercel lists Pro at $20 per developer seat/month before applicable taxes and metered usage. The owner chose Cloudflare rather than paying for Vercel Pro. This is a plan/policy choice, not a claim that the whole product will remain free at every usage level. [11] [12]
+
+Cloudflare Pages Free includes 500 builds/month, one concurrent build, up to 20,000 site files, and a 25 MiB per-file asset limit. Pages Functions count against Workers limits. Workers Free includes 100,000 dynamic requests/day, 10 ms CPU per invocation, 128 MB memory, and 50 subrequests per invocation; static asset requests are free/unlimited. The daily Functions limit can return an error when exceeded; it does not silently become an unlimited paid plan. The Workers Paid plan starts at $5/month plus usage, so do not enable or upgrade it without owner approval. [13] [14] [15]
+
+Cloudflare API inspection on 2026-11-09 found the existing `kamna.pages.dev` project has `source: null`, `latest_deployment: null`, no Preview/Production environment variable names, and production branch `main`. This is a Direct Upload project. Wrangler CLI is not authenticated in the current environment, so deployment is arranged through a guarded GitHub Actions/Wrangler workflow. Do not connect Git integration or convert project type casually; follow the official project-mode guidance. [16] [17]
+
+### Hosting and deployment references
+
+[11]: https://vercel.com/docs/limits/fair-use-guidelines "Vercel Hobby fair-use guidance"
+[12]: https://vercel.com/pricing "Vercel plans and pricing"
+[13]: https://developers.cloudflare.com/pages/platform/limits/ "Cloudflare Pages limits"
+[14]: https://developers.cloudflare.com/workers/platform/limits/ "Cloudflare Workers limits"
+[15]: https://developers.cloudflare.com/workers/platform/pricing/ "Cloudflare Workers pricing"
+[16]: https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/ "Cloudflare Pages Direct Upload via CI"
+[17]: https://developers.cloudflare.com/pages/platform/known-issues/ "Cloudflare Pages project mode limitations"

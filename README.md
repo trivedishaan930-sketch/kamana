@@ -37,9 +37,9 @@ pnpm preview:pages
 
 ## Cloudflare Pages configuration
 
-Connect the existing GitHub repository to a Cloudflare Pages project. Use the repository root, build command `pnpm install --frozen-lockfile && pnpm build`, and output directory `dist`. Pages automatically discovers the `functions/` directory.
+The existing `kamna.pages.dev` project is in Direct Upload mode, not connected to a Git source, and has no deployment yet. `.github/workflows/deploy-cloudflare-pages.yml` builds the repo and uses Wrangler Direct Upload. It deliberately skips production deployment until the owner sets the repository variable `CF_PAGES_DEPLOY_ENABLED=true` after configuring all launch prerequisites.
 
-Set the following for both Preview and Production environments:
+Keep build-time browser-safe values in the GitHub Actions workflow. Set the Pages Functions runtime values below for both Preview and Production environments:
 
 **Build-time browser-safe variables**
 
@@ -64,6 +64,6 @@ The 18+ collection is hidden unless the operator explicitly enables its feature 
 
 ## Before public launch
 
-This repository and database are prepared, but the public site is **not deployed by this change**. Cloudflare Pages credentials/configuration, production secrets, SMTP, an approved moderator account, and a verified/operational grievance mailbox still need owner-side setup. The report form stores submissions in the moderator queue; it does not send email notifications. The visible contact address in the site is not proof that an inbox is monitored. Confirm it is staffed and legally suitable before relying on it. The privacy, terms, and content-policy pages are beta drafts, not legal advice or a claim of full legal compliance.
+This repository and database are prepared, but the public site is **not deployed**. The Cloudflare Pages project has no deployment or Preview/Production runtime variables. GitHub Actions needs a Pages-scoped API token and account ID; Cloudflare needs the production secrets; Supabase email confirmation/SMTP, a verified moderator account, and a staffed/legally suitable grievance mailbox still need owner-side setup. The report form stores submissions in the moderator queue; it does not send email notifications. The visible contact address in the site is not proof that an inbox is monitored. Confirm it is staffed and legally suitable before relying on it. The privacy, terms, and content-policy pages are beta drafts, not legal advice or a claim of full legal compliance.
 
 After configuration, verify: confirmed-email sign-in; upload and pending state; public invisibility before approval; moderator allowlist and audit trail; approval-to-gallery visibility; adult collection remains hidden unless deliberately enabled; short-lived image links and ID-bearing downloads; report receipt/queue; creator removal; and successful private-object cleanup.

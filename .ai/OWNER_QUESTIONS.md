@@ -10,15 +10,16 @@ What you need to do: Owner ने 2026-11-09 को Yes दिया; approval `
 
 Reply: **Yes** (resolved).
 
-## Production hosting plan — one Yes/No decision
+## Hosting plan — resolved
 
-Problem: Vercel account अभी Hobby plan पर है। Vercel के official rules में Hobby personal/non-commercial use तक सीमित है; commercial production के लिए Pro या Enterprise चाहिए। Pro की कीमत $20 प्रति developer seat/माह से शुरू होती है; taxes और extra usage अलग हो सकते हैं. [Vercel rules](https://vercel.com/docs/limits/fair-use-guidelines) · [Pricing](https://vercel.com/pricing)
+Owner ने पूछा कि Vercel मुफ़्त हो तो वहाँ रखें, वरना अधिक उपयुक्त free hosting पर जाएँ। Vercel Hobby $0 है, पर personal/non-commercial use तक सीमित है; Kamna के public creator platform के लिए यह उचित production plan नहीं है। Owner ने no-new-paid-plan विकल्प के रूप में Cloudflare चुना। Cloudflare के free limits अलग से monitor करने होंगे। कोई billing action नहीं हुआ।
 
-What I already did: Repo और providers पढ़े; Vercel plan Hobby verify किया। कोई billing, app behavior या deployment नहीं बदला। Cloudflare Pages project मौजूद है, पर अभी deployment/production variables नहीं हैं।
+## Cloudflare production setup — owner action needed
 
-What you need to do:
-1. अगर Vercel production ही चाहिए, Vercel Dashboard → Team Settings → Billing में Pro की कीमत देखकर upgrade आप स्वयं करें; payment/card details यहाँ न भेजें।
-2. अगर Pro cost नहीं चाहिए, इसी सवाल पर **No** लिखें; मैं repo के चुने हुए Cloudflare Pages frontend विकल्प से आगे बढ़ूँगा।
-3. Upgrade के बाद **Yes** लिखें; मैं Vercel team access और production readiness फिर जाँचूँगा।
+Problem: `kamna.pages.dev` Pages project मौजूद है, पर Cloudflare API में अभी deployment, Git source और Preview/Production environment variables नहीं हैं। Project Direct Upload mode में है। Wrangler CLI login उपलब्ध नहीं; GitHub Actions secrets API इस integration को access नहीं देती। इसलिए production deploy credentials या privileged Supabase key मैं नहीं देख/बना सकता।
 
-Reply **Yes** या **No**.
+What I already did: repo में Direct Upload के लिए gated GitHub Actions build/deploy workflow और phone-friendly steps जोड़े। Workflow build/typecheck चलाती है, लेकिन `CF_PAGES_DEPLOY_ENABLED=true` होने तक production deploy नहीं करती।
+
+What you need to do: `docs/product/OWNER_GUIDE.md` के Cloudflare Pages deployment section के steps पूरे करें—GitHub Actions में scoped `CLOUDFLARE_API_TOKEN` और `CLOUDFLARE_ACCOUNT_ID`; Cloudflare Pages में `SUPABASE_SERVICE_ROLE_KEY` और `KAMNA_RATE_LIMIT_SECRET` को secrets सहित runtime variables; verified moderator email; Supabase SMTP/Auth redirect; फिर GitHub Actions variable `CF_PAGES_DEPLOY_ENABLED=true`। Secret values chat में न भेजें।
+
+Reply **Yes** only after the setup is complete; reply **No** if you need the setup steps explained first. इसके बाद मैं secret values देखे बिना configuration names/status verify करूँगा और deployment/test पूरा करूँगा।
