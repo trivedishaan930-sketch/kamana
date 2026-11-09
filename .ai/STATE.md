@@ -1,9 +1,10 @@
 # Relay state
 
 - **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-09T12:42:03Z
+- **Heartbeat (UTC):** 2026-11-09T12:46:10Z
 - **Current task:** T-005 claimed — verify public deployment, SMTP, moderator access, and launch gates.
-- **Takeover:** Owner explicitly confirmed and authorized this session to proceed after the prior agent's T-011 completion; reviewed remote `main` and the prior handoff before claiming. This takeover supersedes the prior stale session lock; no force-push or concurrent edits were observed.
-- **Recently reviewed:** Prior T-011 commit `259b3ab` reconciles route manifest/sitemap and reports no app-code changes. Current install, typecheck, and build pass; existing Vite chunk warning remains. Cloudflare Pages project `kamna` exists but has no deployments and no configured environment variables. Vercel API still returns team-scope 403 after the earlier approval attempt.
-- **Next step:** Reconcile user-approved Vercel-static-frontend + Cloudflare Pages Functions API + Supabase Auth/Postgres/private Storage with the documented launch plan, then configure/test only after provider access and required production settings are verified.
-- **Blockers:** Vercel scope authorization is still rejected; Cloudflare Pages has no deployment or runtime variables/secrets; production SMTP and verified moderator account are not confirmed. Do not call the site live until end-to-end launch gates pass. Keep 18+ closed.
+- **Takeover:** Owner explicitly confirmed and authorized this session to proceed after T-011; remote `main` and prior handoff were reviewed before claiming.
+- **Verified:** Current install, typecheck, and build pass; existing Vite bundle warning remains. Supabase Kamna is healthy with five migrations and no security-advisor lints. Cloudflare Pages `kamna.pages.dev` exists but has zero deployments and null Preview/Production env-variable configuration. Vercel account profile reports Hobby; Vercel project/team API reads still return 403 after two owner-approved access links.
+- **Architecture finding:** User requests Vercel static frontend with Cloudflare Pages Functions and Supabase backend. The current API client uses same-origin `/api/*`; external Vercel rewrites are supported by Vercel docs, but Cloudflare `functions/_lib/core.ts` currently rejects the forwarded Vercel `Origin` because it does not equal `kamna.pages.dev`. A production-origin allowlist or reviewed equivalent is required before the split works.
+- **Next step:** Owner must choose paid Vercel Pro (or Enterprise) versus the repo's currently selected Cloudflare Pages frontend. Do not change billing. After that, resolve team-scope access, reconcile docs/config, configure production secrets through provider dashboards, and verify end-to-end launch gates.
+- **Blockers:** Vercel Hobby is restricted to personal/non-commercial use; commercial usage requires Pro/Enterprise. Pro is $20 per developer seat/month before applicable taxes/usage. Cloudflare Pages has no deployment/runtime vars; production SMTP and moderator account are unverified. Do not call site live until flows pass; keep 18+ closed.
