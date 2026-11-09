@@ -1,0 +1,5 @@
+---
+description: Kamna relay protocol
+alwaysApply: true
+---
+Read and follow the root `AGENTS.md`, then `.ai/STATE.md`, `.ai/TASKS.md`, `plan.md`, `TODO.md`, and `.ai/DECISIONS.md`. Use the single-writer, claim-before-work, small-commit, review, secret-safety, and push-to-main rules defined there. Do not change app behavior for documentation/workflow tasks.
