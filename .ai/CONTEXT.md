@@ -4,7 +4,7 @@ Kamna is a Gallery Ash, AI-art-only community gallery. Approved works are human-
 
 **Stack:** Vite/React/TypeScript frontend; Cloudflare Pages Functions; Supabase Auth/Postgres/private Storage; SQL migrations under `supabase/migrations/`.
 
-**Current phase:** Owner-approved Phase 1 go-live foundations. T-005 is active: deploy Cloudflare Pages through the gated GitHub Actions workflow and complete the already planned Supabase Auth/SMTP Step 3. Roadmap approval is recorded in `.ai/LOG.md`. Storage is a separate directive and must not be changed.
+**Current phase:** Owner-approved Phase 1 go-live foundations. The current beta is deployed and T-005/Supabase Auth Step 3 is complete by owner-reported five-check evidence. Broader upload, moderation, report/removal, policy, and operational launch gates remain separate. Storage is a separate directive and must not be changed.
 
 **Where things live:** app in `src/`; APIs in `functions/`; database migrations in `supabase/migrations/`; routes in `public/manus-routes.json`; product docs in `docs/product/`; relay records in `.ai/`.
 

@@ -1,17 +1,19 @@
 # Kamna status report
 
+Status updated: 2026-11-10T05:48:00Z UTC
+
 ## What is present
 
-Kamna is a Vite/React gallery with Cloudflare Pages Functions and Supabase-oriented authentication, artwork metadata, private storage, moderation, reports, takedown intake, provenance labels, category filters, creator pages, and draft policy pages. The application already contains a public route manifest and a Gallery Ash visual system. The repository also has five recorded Supabase migrations, provider research, and relay documentation.
+Kamna is a Vite/React gallery with Cloudflare Pages Functions and Supabase Auth/Postgres/private Storage, artwork metadata, moderation, reports, takedown intake, provenance labels, category filters, creator pages, and beta policy pages. The current beta is deployed at `kamna.pages.dev`.
 
-## What is not verified
+## Completed and owner-tested
 
-The current repository has not been verified here against a live Supabase account, live Cloudflare Pages deployment, production email delivery, a real moderator account, or end-to-end account/upload/moderation/download/report/removal flows. The 18+ section must remain closed. GitHub Actions currently verifies the repository check and CodeQL, but owner-only GitHub security settings still require dashboard confirmation.
+Supabase Auth Step 3 is complete by owner-reported manual verification: signup email receipt, confirmation link with automatic login, Supabase user creation, forgot-password/new-password login, and moderator access. The repository typecheck/build, AI relay checks, security analysis, and Cloudflare deployment checks are green.
 
-## Known risks and gaps
+## Still open for broader launch
 
-The product route set is smaller than the master-directive target sitemap. The product docs are incomplete and need reconciliation with the real routes before any app-code work. There is no independent evidence yet for current external provider limits beyond the dated research already committed. The repository contains no production credentials, which is correct.
+The broader product acceptance still requires end-to-end upload/pending/approval/download/report/removal checks, operational grievance-mailbox confirmation, policy review, and any applicable provider/legal controls. The 18+ section remains closed. Owner-only GitHub security settings are a separate dashboard task.
 
-## Immediate next steps
+## Known non-blocking item
 
-Complete the docs-only product set, add the owner approval question, record source dates beside external claims, and keep storage explicitly separate. Do not mark product outcomes complete until their evidence is actually run and recorded.
+The Vite build emits a large JavaScript chunk warning; it does not fail typecheck or production build.

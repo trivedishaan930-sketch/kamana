@@ -37,7 +37,7 @@ pnpm preview:pages
 
 ## Cloudflare Pages configuration
 
-The existing `kamna.pages.dev` project is in Direct Upload mode, not connected to a Git source, and has no deployment yet. `.github/workflows/deploy-cloudflare-pages.yml` builds the repo and uses Wrangler Direct Upload. It deliberately skips production deployment until the owner sets the repository variable `CF_PAGES_DEPLOY_ENABLED=true` after configuring all launch prerequisites.
+The existing `kamna.pages.dev` project is deployed through the gated GitHub Actions/Wrangler Direct Upload workflow. The current production beta uses Cloudflare Pages Functions and the configured Supabase runtime. It is not a claim that every broader public-launch acceptance flow is complete.
 
 Keep build-time browser-safe values in the GitHub Actions workflow. Set the Pages Functions runtime values below for both Preview and Production environments:
 
@@ -54,7 +54,7 @@ Keep build-time browser-safe values in the GitHub Actions workflow. Set the Page
 - `KAMNA_RATE_LIMIT_SECRET` as a Cloudflare **secret**.
 - `ADULT_SECTION_ENABLED=false`.
 
-Do not copy `.dev.vars.example` verbatim into production: replace each placeholder and keep privileged values in Cloudflare’s secret manager. Configure Supabase Auth email confirmation and production SMTP before public sign-up. Create/verify the moderator account, then set its exact email in the allowlist. Never commit `.env.local`, `.dev.vars`, a service-role key, or other private credentials.
+Do not copy `.dev.vars.example` verbatim into production: replace each placeholder and keep privileged values in Cloudflare’s secret manager. Supabase Auth email confirmation/SMTP and the designated moderator allowlist are configured and owner-tested for the current beta. Never commit `.env.local`, `.dev.vars`, a service-role key, or other private credentials.
 
 ## Safety and operating limits
 
@@ -62,8 +62,8 @@ The server validates image bytes (JPG, PNG, WebP; at most 8 MiB), reserves no mo
 
 The 18+ collection is hidden unless the operator explicitly enables its feature flag. An adult self-attestation is not identity verification. Its content policy excludes nudity, sexual acts, pornographic/explicit content, minors or ambiguous-age subjects, sexualized minors, non-consensual intimate imagery, sexual deepfakes, and unauthorized likenesses. Do not enable it if provider terms, law, or required stronger controls are unresolved.
 
-## Before public launch
+## Current beta status and broader launch gates
 
-This repository and database are prepared, but the public site is **not deployed**. The Cloudflare Pages project has no deployment or Preview/Production runtime variables. GitHub Actions needs a Pages-scoped API token and account ID; Cloudflare needs the production secrets; Supabase email confirmation/SMTP, a verified moderator account, and a staffed/legally suitable grievance mailbox still need owner-side setup. The report form stores submissions in the moderator queue; it does not send email notifications. The visible contact address in the site is not proof that an inbox is monitored. Confirm it is staffed and legally suitable before relying on it. The privacy, terms, and content-policy pages are beta drafts, not legal advice or a claim of full legal compliance.
+The current beta is deployed at `kamna.pages.dev`. Supabase Auth Step 3 is complete by owner-reported testing: signup email, confirmation/automatic login, Supabase user creation, password reset/new-password login, and moderator access. The report form stores submissions in the moderator queue; it does not send email notifications. The visible contact address in the site is not proof that an inbox is monitored. Confirm it is staffed and legally suitable before relying on it. The privacy, terms, and content-policy pages are beta drafts, not legal advice or a claim of full legal compliance.
 
-After configuration, verify: confirmed-email sign-in; upload and pending state; public invisibility before approval; moderator allowlist and audit trail; approval-to-gallery visibility; adult collection remains hidden unless deliberately enabled; short-lived image links and ID-bearing downloads; report receipt/queue; creator removal; and successful private-object cleanup.
+Broader launch gates still include end-to-end upload/pending/approval/download/removal/report testing, grievance mailbox operations, policy review, and any required provider/legal controls. Keep `ADULT_SECTION_ENABLED=false` unless those controls are separately approved.

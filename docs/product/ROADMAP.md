@@ -1,6 +1,6 @@
 # Kamna roadmap
 
-Status date: 2026-11-09. Roadmap approval is pending. Storage: separate directive.
+Status date: 2026-11-10. Roadmap approval is recorded; the current beta deployment and Supabase Auth Step 3 are complete, while broader launch gates remain open. Storage: separate directive.
 
 ## Phase 0 — stabilise and audit
 
