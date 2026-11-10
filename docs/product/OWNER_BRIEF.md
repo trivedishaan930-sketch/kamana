@@ -1,43 +1,48 @@
 # Owner brief
 
-Status: re-based on the owner's request dated 2026-11-10. This is the source for the updated PRD, roadmap, and task sequence. The new roadmap approval is pending. This document does not authorize app-code, provider, storage, or live-site changes.
+Status: updated 2026-11-10. This is the source for the PRD, roadmap, and task sequence. The owner approved the updated roadmap and additions on 2026-11-10. This planning record does not itself implement app code, create accounts, change providers/storage, or deploy features.
 
 ## Product direction
 
-Kamna should become a premium, mobile-friendly discovery site for AI-generated art. The experience should feel as easy to browse as a Pinterest-style visual gallery, but remain original to Kamna. The owner specifically wants a masonry grid, many useful categories, fast search, smooth mobile browsing, and a more premium look than the current live beta.
+Kamna should become a premium, mobile-friendly discovery site for AI-generated art. The experience should feel as easy to browse as a Pinterest-style visual gallery, but remain original to Kamna. The owner wants a masonry grid, useful categories, fast search, smooth mobile browsing, and a more premium look than the current live beta.
 
-Anyone should be able to view and download an approved image without signing in. Uploading requires an account, the uploader's rights and AI disclosures, and the existing human review. A submission must remain private until a moderator approves it. A free download is not a transfer of commercial or republication rights.
+Anyone should be able to view and download approved general-audience images without signing in. Uploading requires an account, the uploader's rights and AI disclosures, and the existing human review. A submission must remain private until a moderator approves it. A free download is not a transfer of commercial or republication rights.
 
-The outdated live meta description — “Kamna — an 18+ community for lawful, fictional AI artwork.” — misstates the public product. Correcting the page title/meta description is the first code task after the owner approves this revised roadmap. No metadata code is changed in this docs-only task. The 18+ section remains closed unless separately reviewed and approved.
+The outdated live meta description—“Kamna — an 18+ community for lawful, fictional AI artwork.”—misstates the product. Correcting the page title/meta description is T-015, the first implementation task under the approved roadmap. The 18+ section remains closed unless separately reviewed and approved.
 
-## Baseline measured on 2026-11-10
+## Current baselines and reported mobile defects
 
-The current homepage has nine general-audience collection categories. It also has separate Indian tradition/style filters. The search field and API query exist: code searches artwork title, description, tags, and creator display name. Search speed and real-user success have not been measured, so no numeric performance target is set.
+Baseline measured from the live page and repository on 2026-11-10: nine general-audience collection categories; title/description/tag/creator search exists but speed and real-user success have not been measured; the current responsive equal-column CSS grid is not masonry; and no approved artworks are visible. Search relevance, real-device mobile behavior, Core Web Vitals, traffic, and creator demand remain unknown; do not invent targets.
 
-The current gallery is a responsive equal-column CSS grid, not masonry. Desktop uses three columns; the CSS switches to two columns at narrower widths and one column at the smallest breakpoint. Artwork tiles use a fixed aspect ratio. No approved artworks are currently visible, so the visitor's real gallery, search relevance, and anonymous image-download experience cannot be end-to-end tested against an actual public work.
+The owner reports these mobile/public-UX defects for a future fix task: the tall header consumes too much of the phone screen; the sign-in hero pushes the form below the fold; the upload Title label touches the image-upload box; public pages expose internal terms such as “Supabase” and “backend”; and signed-out visitors see an active-looking upload form instead of a clear sign-in/create-account prompt. Reproduce the layout in a phone viewport before changing it.
 
-The code has a public `/upload` route whose submit control requires a signed-in account and configured provider, and a moderator screen at `/moderation` (there is no `/admin` route). The homepage title is `Kamna — Art beyond the ordinary`; the meta description still contains the old 18+ wording. Mobile responsiveness exists in CSS, but smoothness, accessibility, loading time, and performance on real phones have not been measured.
+The upload route is `/upload`; upload is account-gated. The current moderator screen is `/moderation`, whereas the approved spec calls for `/admin`; the route needs alignment and the staff page must be noindex. A nonblank moderator reason must be required by both UI and server API for state-changing actions and written to a durable audit record.
+
+## Seeding the empty gallery
+
+The owner wants a plan to acquire the first **50–100 approved works** with clear rights, without relaxing review. Candidate sources are AI works made and rights-cleared by the owner and invited creators who submit voluntarily. Every work must pass the same human safety/quality review as all later submissions; the target is not a quota, and the gallery should remain empty if there are not enough eligible works.
+
+A written platform license must make clear whether it covers hosting, public display, attribution, and free downloads. Commercial printing, product links, or other commercial reuse of creator uploads requires a separate explicit creator opt-in and clear terms; the free-download permission alone does not grant it. Store rights/provenance evidence with each submission. The planning task does not itself authorize outreach, publication, or commercial use.
 
 ## Earnings order
 
-First investigate possible earnings for the owner. The owner asked for options with zero cost and no card, including advertising, affiliate links, print/product links, print-on-demand, and a store such as Shopify. The dated policy and cost checks are in `MONETIZATION.md` and `SERVICES_REGISTER.md`. Findings are conditional: there is no confirmed option that simultaneously meets all of the zero-cost, no-card, India, site-readiness, and policy requirements today. Do not add ads or sales links, create accounts, enter payment information, or promise income without the required owner approval.
+First investigate possible earnings for the owner. The owner asked for options with zero cost and no card, including advertising, affiliate links, print/product links, print-on-demand, and a store such as Shopify. Dated provider policy and cost checks are in `MONETIZATION.md` and `SERVICES_REGISTER.md`. No option is currently confirmed to satisfy every zero-cost, no-card, India, site-readiness, and policy condition. Do not add ads or sales links, create accounts, enter payment information, or promise income without the required approval.
 
-Only later, once traffic and creator participation exist, design creator benefits. Candidate benefits are proper creator credit and provenance, followers, featured placement, and possibly revenue sharing. They are not being built now. Selling another creator's uploads as prints requires that creator's explicit commercial license and clear terms for scope, duration, attribution, compensation, takedown, refunds, and responsibility. Current free-download terms do not grant those rights.
+Only later, once traffic and creator participation exist, design creator benefits: creator credit/provenance, followers, featured placement, and possibly revenue sharing. These are not being built now. A qualified lawyer must review AI-art copyright, ownership, infringement, likeness, and licensing uncertainty before commercial use. These documents are product planning, not legal advice or a compliance claim.
 
-## Risks and decision rules
+## Decision rules
 
-An ad or affiliate provider may reject a thin, image-heavy, empty, adult-adjacent, or otherwise unsuitable site. A platform's general permission to use AI is not proof that it will approve Kamna for monetization. AI artwork may raise ownership, infringement, likeness, and licensing questions; no copyrightability guarantee is made. A qualified lawyer familiar with the relevant jurisdiction must review the position before commercial use. These documents are product planning, not legal advice or a compliance claim.
-
-The public beta remains non-explicit. Keep the 18+ feature and monetization off. Measure performance and user experience before setting numeric targets; do not invent traffic, income, or conversion figures.
+Keep the public beta non-explicit. Keep 18+ and monetization off. Maintain the existing human-review bar while seeding the gallery; never auto-approve to meet the 50–100 target. Measure performance and user experience before setting numeric targets. Creator rewards, commercial print rights, revenue, and provider approval must not be promised.
 
 ## Owner summary
 
 Kamna को premium AI-art discovery site बनाना है।
 Gallery masonry होगी और phone पर आसान चलेगी।
 Approved images बिना sign-in देखी और download की जा सकेंगी।
-Upload के लिए account और human review ज़रूरी रहेंगे।
-पहला code task metadata सुधारना है, पर नए roadmap पर Yes के बाद।
-Owner की कमाई पहले; creators को लाभ बाद में design होगा।
-अभी कोई ads, store या paid feature चालू नहीं होगा।
-किसी creator की art बेचने से पहले उसकी साफ़ written permission चाहिए।
-Income या copyright की guarantee नहीं है।
+Upload के लिए account, साफ rights और human review ज़रूरी हैं।
+पहला code task T-015 metadata सुधारना है।
+पहले 50–100 eligible works की plan बनेगी, review कम नहीं होगा।
+Mobile और moderation की बताई समस्याएँ ठीक होंगी।
+Owner की कमाई पहले; creator benefits बाद में design होंगे।
+Creator की commercial art sale के लिए अलग साफ़ permission चाहिए।
+18+ और monetization अभी बंद हैं।

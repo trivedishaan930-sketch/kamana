@@ -1,56 +1,61 @@
 # Kamna roadmap
 
-Status date: 2026-11-10. This roadmap has been re-based on `OWNER_BRIEF.md`; approval of this revised roadmap is pending. The earlier Yes applied to the previous roadmap only. Do not change app code, start a provider, add storage, or deploy a feature until the applicable owner approval. Storage: separate directive.
+Status date: 2026-11-10. **Owner approved this roadmap and the additions below on 2026-11-10.** `OWNER_BRIEF.md` remains the source for product goals. This approval does not bypass per-task safety, rights, security, or provider gates. Do not enable 18+ or monetization. Storage: separate directive.
 
-## Owner's measurable goals and current baselines
+## Owner's measurable goals and baselines
 
-The owner wants a premium, Pinterest-style discovery experience for AI-generated art: masonry layout, useful categories, fast search, smooth mobile browsing, and public view/download without sign-in. Uploads require an account and human review. Owner revenue comes before any later creator reward program.
+Kamna should become a premium, Pinterest-style discovery site for AI-generated art with a true masonry grid, useful categories, fast search, and smooth mobile browsing. Anyone may view and download approved general-audience work without signing in; creators need an account, clear rights, and human review before publication. Owner earnings precede any later creator benefits.
 
-Baseline recorded from the live page and current repository on 2026-11-10: nine general-audience categories are declared in `src/App.tsx`; query search and a separate tag filter are present, and the API can search title, description, tags, and creator display name; the current gallery is a responsive equal-column grid with fixed-ratio cards, not masonry; the responsive CSS changes from three to two to one columns; no approved works are currently visible; the title is `Kamna — Art beyond the ordinary`, while the meta description still identifies the site as an 18+ community. Search response time, mobile-device experience, Core Web Vitals, user success, traffic, and creator demand have not been measured. Those unknowns are baselines to collect, not permission to invent targets.
+Baseline recorded from the live page and repository on 2026-11-10: nine general-audience categories; query search and a separate tag filter; the API searches title, description, tags, and creator display name; equal-column responsive CSS grid with fixed-ratio tiles, not masonry; no approved works visible. Homepage title is `Kamna — Art beyond the ordinary`, but the description still calls Kamna an 18+ community. Search speed/relevance, real-device mobile behavior, Core Web Vitals, traffic, and creator demand are not yet measured. The owner has additionally reported mobile problems: the tall header consumes screen space, the sign-in hero pushes the form below the fold, the upload Title label touches the preceding image-upload box, public copy exposes internal provider terms, and signed-out users see an active-looking upload form. Reproduce these in a mobile viewport before fixing; do not invent performance targets.
 
-## Phase 0 — stabilise, measure, and approve
+## First implementation task (T-015): correct page metadata
 
-Acceptance: status report, security review, and current routes remain accurate; identify all known gaps; measure search and mobile/performance baselines before setting numeric targets; keep owner-only GitHub settings and personal-contact cleanup on the proper owner path; and obtain a new Yes for this revised roadmap. Preserve `Storage: separate directive`. Keep the 18+ area closed and monetization off.
+T-015 remains first. Correct the document title/meta description so Kamna is described as general-audience AI-art discovery, not an 18+ community. Keep the 18+ feature disabled. Acceptance: deployed HTML has the accurate title/description. This is first in the implementation order; this roadmap update does not itself change app code.
 
-## Phase 1 — first approved code task: correct page metadata
+## Phase 0 — governance and measured baseline
 
-This is the first app-code task after the owner says Yes to this revised roadmap. Update the document title and meta description so they accurately describe general-audience AI-art discovery and do not call Kamna an 18+ community. Preserve the 18+ feature flag as off. Acceptance: the deployed page source shows the new accurate title and description and contains no old 18+ meta wording. No such code change is part of this documentation task.
+Keep the single-writer/stale-lock rule consistent in `AGENTS.md` and `.ai/DECISIONS.md`; current proposal is a 10-minute threshold and the owner will confirm it Yes/No. Mark the two 2026-11-09 reviews' reviewer agent/account as unknown unless primary evidence identifies them. Add the owner-requested protected-path and release-safety tasks to the backlog. Record measured search/mobile/accessibility/performance baselines before setting any numeric budget. Keep 18+ and monetization off.
 
-## Phase 2 — core discovery quality
+## Phase 1 — seed the empty gallery without lowering moderation
 
-Acceptance: the gallery presents an actual masonry layout rather than equal fixed-ratio tiles; all nine current collections remain discoverable; search and tags return the expected approved results; users can browse and download approved general-audience images without signing in; and phone browsing is tested for layout, accessibility, loading and errors. Start by measuring current behavior, then agree numeric performance budgets from that evidence. Do not invent a category count or search-latency target.
+Plan a path to the owner's requested first **50–100 approved works**, not a requirement to accept any specific submission. Sources: (a) AI works created and rights-cleared by the owner; (b) invited creators who submit voluntarily. Every submission follows the same upload rules, rights confirmation, human quality/safety review, and approval process as later submissions. Do not lower moderation thresholds or auto-approve to reach the target. Record source, creator, AI disclosure, provenance, and permission. A clearly written platform license must cover only the intended hosting, public display, attribution, and free-download scope; any commercial print/product license must be a separate explicit creator opt-in with clear terms. If eligible works are unavailable, keep the gallery honestly empty rather than publish uncleared or unsafe work. No outreach or commercial reuse of creator work is authorized by this planning task alone.
 
-Small queued tasks are in `.ai/TASKS.md`: T-015 metadata; T-016 search correctness and latency baseline; T-017 masonry; T-018 phone/accessibility/performance baseline; T-019 categories and search usability; T-020 anonymous download end-to-end check when an approved work exists; T-021 two independently scored visual proposals before changing the design.
+## Phase 2 — core discovery and mobile UX
 
-## Phase 3 — trust and safety hardening
+Replace the uniform grid with true masonry while preserving the nine categories and approved-only behavior. Measure search behavior before proposing a latency budget. Recheck the owner's reported mobile problems and fix: compact the tall header; bring sign-in fields into the first viewport where feasible; add clear vertical space between upload box and Title label; remove public-facing provider/internal terms such as “Supabase” and “backend”; and show signed-out visitors a clear sign-in/create-account prompt instead of an enabled-looking upload form. Preserve accessibility, error recovery, visible rights/safety information, and clear state messaging. Acceptance requires real phone/viewport checks; set numerical speed/bundle/accessibility targets only after baselines.
 
-Acceptance: server-side permission checks, rate limits, upload-byte validation, moderation audit, takedown handling, abuse controls, incident drill and independent security review are evidenced. Uploads stay private and pending until human approval. Do not claim a provider-backed flow is complete without a real end-to-end test.
+## Phase 3 — moderation, trust and safety
 
-## Phase 4 — SEO and discovery
+Require a non-empty, trimmed reason in both moderator UI and server API for every moderation/report action that changes state; fail closed and test direct API calls with missing/blank reasons. Ensure the durable audit record stores the reason. Align the staff route with the spec at `/admin`, mark the HTML page noindex (and cover robots/canonical behavior as appropriate), update route manifest and tests, and avoid exposing staff controls in public navigation. Keep server-side authorization on every request and review the route migration for stale `/moderation` links. Pending uploads remain private until human approval.
 
-Acceptance: public pages have accurate metadata and social cards; sitemap and robots behavior match real routes; private, moderation and closed 18+ surfaces are not indexed; structured data is accurate; and search discovery/performance is measured. Provide owner instructions for Search Console and privacy-respecting analytics.
+## Phase 4 — protected paths and release safety
 
-## Phase 5 — growth and community
+Add `.github/CODEOWNERS` and a CI paths guard for the protected paths in the directive; pin every GitHub Action to a verified full commit SHA; keep dependency lockfiles and dependency audit current. Add a `CHANGELOG` and a written rollback plan appropriate to each release, including frontend/function rollback and safe database-migration limits. Do not edit already-applied migrations; prefer forward-only additive migrations. Keep the 18+ and monetization flags off by default.
 
-Acceptance: actual private-beta feedback informs creator onboarding, collection structure, sharing, and discovery improvements. Plan a small private beta with 5–10 real creators; AI research is not a replacement for real users. No new feature is adopted from a design proposal without its decision record and required owner approval.
+## Phase 5 — quality gates after baselines
 
-## Phase 6 — owner revenue first
+Add shared lint/format checks, unit tests for API handlers, authenticated E2E smoke coverage for sign-in/upload/review/public view/download/report, automated accessibility checks, and Lighthouse checks after establishing baselines. Every bug fix should include regression coverage. Do not invent performance, accessibility, or bundle thresholds; measure first and propose budgets for owner review where needed. Record unavailable real-provider scenarios explicitly rather than marking them passed.
 
-Acceptance: real approved content and a measured traffic baseline exist; current provider eligibility, AI/art and adult-adjacent policies, payout path, card and all costs are verified for India; privacy and legal risks are reviewed; and the owner says Yes before one reversible experiment. Research on AdSense, Amazon.in Associates, Printify and Shopify is in `MONETIZATION.md`; none is approved for use now. Never promise income.
+## Phase 6 — SEO and growth
 
-## Phase 7 — creator-benefit design later; maintenance
+Keep public metadata, social cards, sitemap, and robots behavior accurate; keep staff/private surfaces out of search indexing. Use measured search and mobile evidence and private beta feedback from 5–10 real creators to refine categories, onboarding, sharing and discovery. AI research is not a substitute for real users.
 
-Only after the owner-first revenue stage has been considered and real creator participation exists, design creator credit, follows, featured slots and possibly revenue sharing. Design only at first; no payout or monetization code is authorized. Define creator consent, attribution, calculations, taxes, disputes, refund and takedown handling before any later build. Continue the weekly security audit, dependency updates, issue review, Scout report and rollback rehearsal.
+## Phase 7 — owner revenue first; creator benefits later
+
+Only after useful approved content and measured traffic exist, re-check India-specific provider acceptance, AI/art and adult-adjacent policies, card and payout requirements, full costs, privacy and legal risks. Get owner Yes before one reversible owner-earnings experiment. Existing research in `MONETIZATION.md` approves no provider or income claim. Later, design creator credit, follows, featured slots, and perhaps revenue sharing; commercial use of creator uploads needs a separate explicit license. No creator payouts or commercial-print feature are authorized now.
+
+## Phase 8 — maintenance
+
+Continue weekly security review, dependency updates, issue review, Scout report, incident readiness, rollback rehearsal and backup/restore planning. Preserve `Storage: separate directive`.
 
 ## Owner summary
 
-पहले नया roadmap approve होगा।
-पहला code task पुराना title/meta ठीक करना है।
-अभी app code नहीं बदला गया है।
-Gallery में अभी 9 मुख्य categories हैं।
-Masonry और mobile performance अभी जाँचने बाकी हैं।
-पहले baseline मापेंगे, फिर target तय करेंगे।
-Owner की कमाई पहले जाँची जाएगी।
-Creators के rewards बाद में design होंगे।
-Ads और 18+ अभी बंद रहेंगे।
-Storage अलग directive से ही बदलेगा।
+आपने roadmap मंज़ूर कर दिया है।
+पहला code काम T-015 title/meta सुधारना है।
+Gallery में पहले 50–100 सही अनुमति वाले काम जुटाने की योजना बनेगी।
+हर artwork पर वही human moderation लागू रहेगी।
+Mobile की बताई समस्याएँ ठीक की जाएँगी।
+Moderator reason UI और API दोनों में ज़रूरी होगा।
+पहले speed और accessibility की baseline मापेंगे।
+Creator की commercial permission अलग से चाहिए।
+18+ और कमाई अभी बंद है।

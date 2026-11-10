@@ -10,7 +10,7 @@ Gallery में General Illustration, Festival & Celebration, Nature & Wildlif
 
 ## पहले post-approval code task
 
-Owner के 2026-11-10 के निर्देश के अनुसार, revised roadmap पर Yes मिलने के बाद पहला application-code task `index.html` का title और meta description ठीक करना है। नया metadata public Kamna को general-audience AI-art discovery site के रूप में बताएगा, न कि “18+ community” के रूप में। इससे पहले कोई metadata code, 18+ setting, monetization, provider, deployment, या storage परिवर्तन नहीं होगा। पूरा scope `.ai/DECISIONS.md` के decision 20 और `.ai/TASKS.md` में दर्ज है।
+Owner ने 2026-11-10 को updated roadmap मंज़ूर किया। पहला application-code task `index.html` का title और meta description ठीक करना है; नया metadata public Kamna को general-audience AI-art discovery site के रूप में बताएगा, न कि “18+ community” के रूप में। T-015 से शुरू करें; इस documentation update ने app code, 18+ setting, monetization, provider, deployment, या storage नहीं बदला। अगली स्वीकृत backlog additions `.ai/TASKS.md` और `docs/product/ROADMAP.md` में दर्ज हैं।
 
 ## Implementation approach
 

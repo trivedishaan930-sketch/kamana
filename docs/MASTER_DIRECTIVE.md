@@ -65,7 +65,7 @@ When something fails:
 2. Merge conflict in append-only logs: keep both sides, order by timestamp. In code or docs: understand both changes, keep both intents, rerun build and tests.
 3. CI fails after push: fix forward quickly; if not fixed within 2 attempts, git revert the bad commit (never rewrite history).
 4. Before any risky step, save work on a branch recovery/<agent>-<date>.
-5. Stale lock: follow the 3-hour rule in AGENTS.md and log the takeover.
+5. Stale lock: follow the single threshold recorded in AGENTS.md; do not apply a separate duration here. Log any takeover.
 6. If still unresolved after 3 different attempts: write .ai/INCIDENTS/<date>-<id>.md (exact error text, what was tried, current state, safest next step) and put a simple-Hindi question in OWNER_QUESTIONS.md with at most 3 mobile steps and the screenshot to send. Then stop; do not improvise.
 Also add a TROUBLESHOOTING section for commit/merge failures to docs/product/OWNER_GUIDE.md.
 

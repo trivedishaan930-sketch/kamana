@@ -1,9 +1,15 @@
 # Kamna — TODO
 
-Production outcomes remain open until the relevant provider services are configured and the public deployment demonstrably supports them. Kamna is an AI-art community, not a pornography site. The separate 18+ collection is limited to non-explicit fashion/swimwear and cannot override law or provider policies.
+Production outcomes remain open until the relevant provider services are configured and the public deployment demonstrably supports them. Kamna is a general-audience AI-art discovery site; the separate 18+ collection remains closed unless separately approved and cannot override law or provider policies.
 
-## First approved code task — pending revised-roadmap Yes
-- [ ] Correct the document title and meta description in `index.html`; the current description still calls Kamna an “18+ community”. Describe the general-audience AI-art discovery site accurately. Keep the 18+ feature closed. Verify the deployed page source only after the owner approves the updated roadmap. This is the first code task and is not authorized by the current docs-only task.
+## First approved code task — roadmap approved 2026-11-10
+- [ ] **T-015, first implementation task:** Correct the document title and meta description in `index.html`; the current description still calls Kamna an “18+ community”. Describe general-audience AI-art discovery accurately. Keep the 18+ feature closed. Verify the deployed page source. The roadmap is approved, but this docs/task update does not itself change app code.
+
+## Approved next work (tracked in `.ai/TASKS.md`)
+- [ ] Plan the first 50–100 rights-cleared approved works from owner-made AI work and invited creators; keep the same human moderation bar and require a separate explicit commercial-print license.
+- [ ] Fix the owner-reported mobile header/sign-in/upload spacing issues, remove provider/backend wording from public UI, and show a clear sign-in prompt rather than an active-looking signed-out upload form.
+- [ ] Require nonblank moderation reasons in the UI and API, persist them in audit records, align the staff route with `/admin`, and add noindex.
+- [ ] Add CODEOWNERS, protected-path CI guard, full-SHA Actions pins, a changelog/rollback plan, and lint/unit/E2E/accessibility/Lighthouse checks after measuring baselines.
 
 ## Artwork categories and Indian visual traditions
 - [ ] Provide a responsive public gallery with searchable categories for General Illustration, Festival & Celebration, Nature & Wildlife, Fantasy & Mythology, Portrait & Character, Fashion & Editorial, Architecture & Places, Abstract & Experimental, Indian Folk & Traditional, and a separate 18+ Fashion & Swimwear collection; enable search, tags, latest sorting, pagination/load-more, artwork detail pages and free downloads for approved images.

@@ -1,0 +1,8 @@
+# T-022 owner-approved roadmap additions — 2026-11-10
+
+- **Reviewer/author:** manus-2, Manus Sandbox session `Tjf8RHCX4LFyoDqjWacqwV`.
+- **Independence:** **NOT independent**. This is the author's consistency check, not independent product, security, or UX approval.
+- **Scope:** `OWNER_BRIEF.md`, `PRD.md`, `ROADMAP.md`, `plan.md`, `TODO.md`, `.ai/TASKS.md`, `AGENTS.md`, `.ai/DECISIONS.md`, `.ai/OWNER_QUESTIONS.md`, and two historic review records.
+- **Checks:** owner-approved backlog includes rights-cleared 50–100-work seeding without a moderation shortcut; all reported mobile issues; required UI/API reasons and durable audit reason; `/admin` route/noindex; CODEOWNERS/paths guard/full Action SHA pins; changelog/rollback plan; and baseline-first quality gates. T-015 remains the first implementation task. The 10-minute stale-lock proposal appears as one active rule in AGENTS.md and DECISIONS.md, with one owner Yes/No pending. Both historic reviewer identities are explicitly unknown because only generic role labels were recorded.
+- **Not done/verified:** no app behavior, provider, storage, live setting, GitHub setting, or production data changed. Phone reproduction, code implementation, backend/API reason tests, actual `/admin`/noindex behavior, and CI protections are future tasks; this document claims none of them passed.
+- **Prior review attribution:** `.ai/REVIEWS/2026-11-09-independent-peer-review.md` and `2026-11-09-independent-final-approval.md` remain unknown as to reviewer agent/account. Commit author metadata identifies the repository owner, not the reviewer, so it is not used as reviewer attribution.
