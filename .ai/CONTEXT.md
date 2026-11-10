@@ -4,7 +4,7 @@ Kamna is a premium discovery site for AI-generated art. Approved works receive a
 
 **Stack:** Vite/React/TypeScript frontend; Cloudflare Pages Functions; Supabase Auth/Postgres/private Storage; SQL migrations under `supabase/migrations/`.
 
-**Current task:** T-015 is complete and deployed at `kamna.pages.dev`; the HTML metadata now describes general-audience AI-art discovery and free downloads. The 18+ collection remains closed. T-016 (search baseline) is next, but remains blocked until approved works exist. T-005/Supabase Auth Step 3 is complete by owner-reported five-check evidence. Broader upload, moderation, report/removal, policy, and operational gates remain open. Storage remains a separate directive.
+**Current task:** T-031 is documentation/workflow only: propose product and relay-system targets, configure the existing weekly dashboard Action, and leave target approval pending in `.ai/OWNER_QUESTIONS.md`. T-015 is complete and live. T-016 (search baseline) remains blocked until approved works exist. The 18+ collection stays closed; storage remains a separate directive.
 
 **Where things live:** app in `src/`; APIs in `functions/`; migrations in `supabase/migrations/`; routes in `public/manus-routes.json`; product docs in `docs/product/`; relay records in `.ai/`.
 
