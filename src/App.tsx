@@ -212,8 +212,15 @@ function SignIn({ onClose }: { onClose?: () => void }) {
       } else if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${location.origin}/signin?confirmed=1` } });
         if (error) throw error;
-        setShowResend(!data.session);
-        setMessage(data.session ? 'Account created and signed in.' : 'If this email is new, a confirmation email was sent. If you already have an account, use Sign in or Forgot password.');
+        const hasNewIdentity = Boolean(data.user?.identities?.length);
+        setShowResend(!data.session && hasNewIdentity);
+        if (data.session) {
+          setMessage('Welcome to Kamna. Your account is ready and you are signed in.');
+        } else if (hasNewIdentity) {
+          setMessage('Welcome to Kamna. We sent a confirmation link to your email. Open it to finish setting up your account, then you will be signed in automatically.');
+        } else {
+          setMessage('This email may already have a Kamna account. Please sign in, or use Forgot password if you need a new password.');
+        }
         if (data.session) { publishAuthNotice('Account created. You are signed in.'); onCloseRef.current?.(); navigate('/account'); }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });

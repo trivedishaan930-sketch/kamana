@@ -1,6 +1,6 @@
 # Relay state
 - **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-10T04:39:15Z
+- **Heartbeat (UTC):** 2026-11-10T04:54:32Z
 - **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff (manus-1 takeover).
 - **Takeover:** manus-2 heartbeat was stale under the owner-authorized 10-minute threshold; manus-1 took over after reviewing the handoff.
 - **Owner authorization:** Owner asked this second connected Manus account to continue the email-confirmation/password-reset task. Existing 2026-11-09 authorization allows deployment through the gated GitHub Actions path only. No paid service/domain, SMTP-provider replacement, secret disclosure, or 18+ enablement is in scope. Repo rules prohibit account creation; no real email or account action was attempted.
@@ -8,5 +8,5 @@
 - **Verified now:** `origin/main` is `0a766ac`; client typecheck/build passed, and GitHub Actions runs `42756205481` (relay), `42756205729` (security), and `42756205661` (Cloudflare deploy) completed successfully. Public `https://kamna.pages.dev/signin` loads the modern auth experience. The code/deployment checks are green.
 - **Resolved in code:** reset success notices now survive navigation, same-origin tabs receive auth/session notices, optional token-hash email/signup/recovery callbacks are handled, callback errors are bounded, and auth form IDs are unique. Cross-device browser navigation remains impossible by browser security design.
 - **Implementation scope complete:** same-browser auth-state/success UX, optional token-hash callback handling, email-template notes, and limitations are committed. Gallery Ash UI and 12-character reset policy were preserved. No storage, provider configuration, or deployment secrets changed.
-- **Evidence boundary:** owner reports manual checking is working well, but the five exact real-email acceptance results are not recorded in repository evidence. Keep T-005 open until the owner records signup receipt/confirmation, automatic login, Supabase user creation, password reset/update, and moderator access results. Keep 18+ off.
-- **Next:** Record the owner test-inbox results if all five Step 3 acceptance checks passed; then a separate completion commit may mark T-005 done. No account or email was created by this session.
+- **Evidence boundary:** owner reported four real-email acceptance checks passed: signup receipt, confirmation/automatic login, Supabase user creation, and password reset/new-password login. Moderator access remains unverified because the owner asked what that check means; keep T-005 open until the exact moderator test is recorded. Keep 18+ off.
+- **Next:** Owner should sign in with the exact configured moderator email, open `/moderation`, and confirm the queue loads; also confirm a normal user is denied. Then T-005 can be reviewed for completion. No account or email was created by this session.
