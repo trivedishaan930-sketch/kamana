@@ -2,6 +2,9 @@
 
 Production outcomes remain open until the relevant provider services are configured and the public deployment demonstrably supports them. Kamna is an AI-art community, not a pornography site. The separate 18+ collection is limited to non-explicit fashion/swimwear and cannot override law or provider policies.
 
+## First approved code task — pending revised-roadmap Yes
+- [ ] Correct the document title and meta description in `index.html`; the current description still calls Kamna an “18+ community”. Describe the general-audience AI-art discovery site accurately. Keep the 18+ feature closed. Verify the deployed page source only after the owner approves the updated roadmap. This is the first code task and is not authorized by the current docs-only task.
+
 ## Artwork categories and Indian visual traditions
 - [ ] Provide a responsive public gallery with searchable categories for General Illustration, Festival & Celebration, Nature & Wildlife, Fantasy & Mythology, Portrait & Character, Fashion & Editorial, Architecture & Places, Abstract & Experimental, Indian Folk & Traditional, and a separate 18+ Fashion & Swimwear collection; enable search, tags, latest sorting, pagination/load-more, artwork detail pages and free downloads for approved images.
 - [ ] Feature an Indian Folk & Traditional collection with separate discoverable labels/tags for Madhubani/Mithila, Warli, Gond, Odisha Pattachitra, Rajasthani Phad, Kalamkari, Cheriyal and Thanjavur/Tanjore; do not flatten these into one style or incorrectly call each one tribal/classical. For AI works inspired by a living or regional tradition, disclose that they are AI-inspired interpretations, not traditional/community-created artworks.
@@ -27,7 +30,7 @@ Production outcomes remain open until the relevant provider services are configu
 
 ## Deployment and free-tier operations
 - [x] Deploy the current beta with Cloudflare Pages/Functions and Supabase Auth/Postgres/private Storage; owner-reported production secrets, SMTP, and moderator allowlist are configured and the five Step 3 auth checks pass. Do not use Vercel Hobby as production hosting for the public multi-creator service.
-- [ ] Keep the supplied `sakhisehat09@gmail.com` private for admin/contact configuration except where a visible grievance/takedown contact is needed; do not expose privileged Supabase keys.
+- [ ] Keep the supplied private admin/contact detail out of public repo material except where a visible grievance/takedown contact is required and owner-approved; do not expose privileged Supabase keys.
 - [ ] Document the current free-tier limits: Cloudflare Workers/Pages Functions request and CPU limits; Supabase database, private Storage, egress and auth/email limits; free projects may pause after inactivity. Do not promise unlimited or guaranteed zero-cost service.
 - [ ] Do not call the platform live until public deployment is confirmed and real sign-in, durable upload, pending-to-approved visibility, categories, AI labels, downloads, report/takedown intake, moderator actions and object deletion work with the selected providers.
 

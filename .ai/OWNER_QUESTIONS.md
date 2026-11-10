@@ -1,51 +1,18 @@
 # Owner questions
 
-## Roadmap approval — resolved
+## Earlier production setup questions — resolved
 
-Problem: आगे के product और app work से पहले roadmap approve करना था।
+Cloudflare Pages deployment, production variables, and moderator account access were previously marked as owner actions. The owner later confirmed the required Supabase Auth checks and moderator access; T-005 completion is recorded in `.ai/LOG.md` and commits `1084b43`/`83bdf23`. No production setup action is pending in this question file.
 
-What I already did: phase 0 audit, tool registry, product docs, sitemap reconciliation, security/QA plan और owner guide तैयार किए।
+## Revised roadmap approval — owner action needed
 
-What you need to do: Owner ने 2026-11-09 को Yes दिया; approval `.ai/LOG.md` में दर्ज है।
+समस्या: पुरानी meta description Kamna को “18+ community” कहती है, जबकि अब लक्ष्य general-audience AI-art discovery site है। नया roadmap पहले metadata correction, फिर masonry/search/mobile quality, और सबसे बाद में policy-checked owner earnings रखता है।
 
-Reply: **Yes** (resolved).
+मैंने क्या किया: `docs/product/OWNER_BRIEF.md`, `docs/product/ROADMAP.md`, `docs/product/PRD.md` और `.ai/TASKS.md` को आपके नए goals के अनुसार अपडेट किया। App code, storage और live settings नहीं बदलीं।
 
-## Hosting plan — resolved
+आपको क्या करना है:
+1. GitHub mobile app में `kamana` repository खोलें।
+2. `docs/product/OWNER_BRIEF.md` और `docs/product/ROADMAP.md` पढ़ें; screenshot में ROADMAP के पहले goals और milestones दिखाएँ।
+3. अगर roadmap सही है तो **Yes** लिखें; बदलाव चाहिए या अभी मंज़ूर नहीं है तो **No** लिखें।
 
-Owner ने पूछा कि Vercel मुफ़्त हो तो वहाँ रखें, वरना अधिक उपयुक्त free hosting पर जाएँ। Vercel Hobby $0 है, पर personal/non-commercial use तक सीमित है; Kamna के public creator platform के लिए यह उचित production plan नहीं है। Owner ने no-new-paid-plan विकल्प के रूप में Cloudflare चुना। Cloudflare के free limits अलग से monitor करने होंगे। कोई billing action नहीं हुआ।
-
-## Cloudflare production setup — owner action needed
-
-Problem: `kamna.pages.dev` Pages project मौजूद है, पर Cloudflare API में अभी deployment, Git source और Preview/Production environment variables नहीं हैं। Project Direct Upload mode में है। Wrangler CLI login उपलब्ध नहीं; GitHub Actions secrets API इस integration को access नहीं देती। इसलिए production deploy credentials या privileged Supabase key मैं नहीं देख/बना सकता।
-
-What I already did: repo में Direct Upload के लिए gated GitHub Actions build/deploy workflow और phone-friendly steps जोड़े। Workflow build/typecheck चलाती है, लेकिन `CF_PAGES_DEPLOY_ENABLED=true` होने तक production deploy नहीं करती।
-
-What you need to do: `docs/product/OWNER_GUIDE.md` के Cloudflare Pages deployment section के steps पूरे करें—GitHub Actions में scoped `CLOUDFLARE_API_TOKEN` और `CLOUDFLARE_ACCOUNT_ID`; Cloudflare Pages में `SUPABASE_SERVICE_ROLE_KEY` और `KAMNA_RATE_LIMIT_SECRET` को secrets सहित runtime variables; verified moderator email; Supabase SMTP/Auth redirect; फिर GitHub Actions variable `CF_PAGES_DEPLOY_ENABLED=true`। Secret values chat में न भेजें।
-
-Reply **Yes** only after the setup is complete; reply **No** if you need the setup steps explained first. इसके बाद मैं secret values देखे बिना configuration names/status verify करूँगा और deployment/test पूरा करूँगा।
-
-## GitHub Actions deploy gate — owner action needed
-
-Problem: workflow का build/typecheck सफल है, लेकिन GitHub API integration `CF_PAGES_DEPLOY_ENABLED` variable set नहीं कर सकती; इसलिए production deploy अभी रुका है।
-
-What I already did: workflow और latest run `42675994192` verify किए; install, typecheck और build pass हैं; deploy step केवल gate unset होने के कारण skip हुआ। Secret values को access नहीं किया।
-
-What you need to do:
-1. GitHub app में `kamana` repo खोलें और **Settings → Secrets and variables → Actions → Variables** पर जाएँ।
-2. Repository variable `CF_PAGES_DEPLOY_ENABLED` बनाएँ या edit करके value `true` रखें; secret values chat में न भेजें।
-3. उसी screen का screenshot भेजें जिसमें variable का नाम और value दिखे, लेकिन कोई secret value नहीं।
-
-Reply **Yes** after this is done, or **No** if you want the steps explained first.
-
-## Production account API configuration — owner action needed
-
-Problem: login/confirmation अब काम कर रहा है। Safe runtime vars डालने के बाद public data API HTTP 200 दे रहा है; अब moderator access के लिए सिर्फ `KAMNA_ADMIN_EMAIL` encrypted Production secret बाकी है।
-
-What I already did: advanced login, forgot-password, password-reset, confirmation-resend और safe account messaging code deploy किया; `SUPABASE_URL` और `ADULT_SECTION_ENABLED=false` को `wrangler.toml` में जोड़कर redeploy किया; `/api/gallery` अब HTTP 200 दे रहा है।
-
-What you need to do:
-1. Cloudflare Dashboard → Workers & Pages → Pages → `kamna` → Settings → Variables and Secrets → **Production** में `+ Add` खोलें और Type **Secret** रखें।
-2. Name `KAMNA_ADMIN_EMAIL` रखें और value में वही exact verified moderator email डालें; existing secrets को delete न करें और value chat में न भेजें।
-3. Save के बाद यहाँ **Yes** लिखें; मैं redeploy करके moderator/API और My account फिर verify करूँगा।
-
-Reply **Yes** after Production bindings are saved, or **No** if you need the steps explained first.
+एक ही जवाब चाहिए: क्या आप updated roadmap approve करते हैं?
