@@ -1,11 +1,11 @@
 # Relay state
 
 - **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-10T03:03:10Z
+- **Heartbeat (UTC):** 2026-11-10T03:12:00Z
 - **Current task:** T-005 — deploy Cloudflare production and complete existing Supabase Auth Step 3.
 - **Owner authorization:** On 2026-11-09 the owner explicitly authorized fixing deployment blockers, enabling `CF_PAGES_DEPLOY_ENABLED` after checking the workflow/config/credentials, deploying via GitHub Actions, and completing Step 3. No paid services/domain, SMTP provider replacement, secret disclosure, or 18+ enablement.
 - **Owner-reported setup:** GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; Cloudflare production runtime names/secret bindings; Supabase Site URL, `/signin` Redirect URL, and Brevo Custom SMTP saved. Do not treat unverified reports as completed tests.
-- **Verified now:** Repo clean at `4a826f9`. Workflow run `42746727176` passed install/typecheck/build and deployed the PKCE recovery fix. The live `/signin` bundle contains `mode=reset`, `resetPasswordForEmail`, `updateUser`, Show password, and confirm-password controls. Recovery links now use `/signin?mode=reset`; signup confirmation links keep the normal account redirect. Password reset/signup requires 12+ characters while existing sign-in accepts legacy passwords. Runtime APIs remain healthy from the prior verification.
+- **Verified now:** Repo clean at `76015ac`. Workflow run `42747722379` passed install/typecheck/build and deployed the modern auth UI. Live `/signin` contains the new split-screen `auth-shell`, `auth-story`, `auth-panel`, mode-aware copy, and recovery controls; `/` and `/signin` return HTTP 200. The working PKCE recovery behavior remains intact beneath the redesign.
 - **Immediate blocker:** A real password-reset email click and new-password submission still need the owner's authorized inbox retest; static/live-bundle verification cannot prove the provider email template and session exchange end to end. No secret is stored in the repo/chat. Do not bypass auth or deploy outside Actions. Owner authorized the relay stale-heartbeat threshold to be 10 minutes for this takeover.
 - **After access:** run one authorized test signup using the owner's test inbox; verify Brevo delivery, confirmation link redirect to `/signin`, Supabase Auth user creation, and moderator allowlist comparison without revealing values. Keep 18+ and ads off; do not claim Step 3 complete until those tests pass.
 - **Remaining gates:** Signup/email/redirect test not run; moderator match pending; grievance mailbox and full provider-backed app flows still unverified. Keep 18+ and ads off; do not claim launch complete until tests pass.
