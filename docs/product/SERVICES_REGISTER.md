@@ -1,21 +1,25 @@
 # Services register
 
-This register records known services and unknowns as of 2026-11-09. Current limits can change; no row is a price guarantee.
+Reviewed 2026-11-10. Free-tier and country terms can change. A missing fee or card statement is recorded as unknown, not assumed to be free. This register is research only; no new service, account, card, or provider is adopted here. Storage remains out of scope.
 
-| Service | Use | Free/card status | Policy/risk | Source/date |
+| Service | Use | Cost and card status | Policy and current fit | Source/date |
 |---|---|---|---|---|
-| Cloudflare Pages/Functions | web hosting and APIs | current limits: see dated research; exact project status unknown | content acceptance and limits require owner review | `research/provider-policy-2026-11-09.md`, 2026-11-09 |
-| Supabase | Auth, Postgres, private Storage | current project setup exists in research; billing/card state unknown | RLS, pause, quota, egress and content policy require review | `research/provider-policy-2026-11-09.md`, 2026-11-09 |
-| Vercel Hobby | not selected for production | not used | public multi-creator production suitability is excluded by plan | `plan.md`, 2026-11-09 |
-| Google Search Console | SEO measurement | free status and owner access unknown | privacy/data-minimization review required before analytics | Google Search Console, 2026-11-09 |
-| SMTP/email | confirmation and operational contact | sender/provider/card status unknown | delivery and monitoring are unverified | `TODO.md`, 2026-11-09 |
-
-Storage: separate directive. No new service, account, card, or provider is adopted here.
+| Cloudflare Pages/Functions | Web hosting and APIs | Current plan limits are in `research/provider-policy-2026-11-09.md`; exact account usage and possible overages are not verified here. | Check limits and usage from the owner dashboard. | `research/provider-policy-2026-11-09.md`, 2026-11-09 |
+| Supabase | Auth, Postgres, private Storage | Project setup is recorded in existing provider research; billing/card state and live quota headroom are unknown. | Keep RLS, pause, quota, egress, email and storage limits under review; storage changes need a separate directive. | `research/provider-policy-2026-11-09.md`, 2026-11-09 |
+| Google AdSense | Potential owner advertising | No subscription fee or signup-card condition stated in the reviewed help pages; card requirement is not explicitly confirmed. Payment requires identity/address verification and an available payout method; bank details and location-specific tax information may be needed. | Approval is not guaranteed. Google warns that mostly-image, insufficient, low-originality or auto-generated pages may fail approval. No blanket AI-art acceptance was confirmed; adult/explicit content carries additional policy risk. Not suitable for the currently empty public gallery. | [AdSense approval](https://support.google.com/adsense/answer/81904?hl=en), [payments](https://support.google.com/adsense/answer/1709858?hl=en), accessed 2026-11-10 |
+| Amazon.in Associates | Potential affiliate commissions | India-specific joining fee and card requirement were not verified from reviewed official India pages; record both as unknown. | Site application can be rejected as unsuitable. Participation wording appears to restrict Special Links on sites designed for mobile devices, which conflicts with Kamna's mobile direction; obtain written clarification before any link. AI-art acceptance was not confirmed. | [India agreement](https://affiliate-program.amazon.in/help/operating/agreement), [participation rules](https://affiliate-program.amazon.in/help/operating/participation), accessed 2026-11-10 |
+| Printify | Potential print-on-demand fulfillment | Account/designing are free with no upfront fee and homepage says no card required to start. Standard integrated orders require payment of product cost, shipping and applicable taxes through Printify balance or linked credit/debit card; the order cost is separate from the sales-channel payout. | Printify puts IP rights and non-infringement responsibility on the seller. A Printify Pop-Up Store avoids the merchant product charge but its current seller country list excludes India and Stripe verification/bank details are required. Do not sell creator uploads without explicit commercial licenses. | [Homepage](https://printify.com/), [cost](https://help.printify.com/hc/en-us/articles/4483638151569-Does-Printify-cost-anything), [billing](https://help.printify.com/hc/en-us/articles/4483626302609-How-will-Printify-charge-me), [countries](https://help.printify.com/hc/en-us/articles/19768094570385-Am-I-an-eligible-merchant-for-Printify-Pop-Up-Store), [IP policy](https://printify.com/intellectual-property-policy/), accessed 2026-11-10 |
+| Shopify | Potential standalone store | Official page offers a three-day free trial without a credit card. Afterward a paid plan applies; the introductory rate is locale-specific and does not make the service free long-term. | General AUP makes the merchant responsible for legal compliance and third-party rights. No AI-art-specific approval promise was found. This fails the zero-ongoing-cost requirement. | [Pricing](https://www.shopify.com/pricing), [AUP](https://www.shopify.com/legal/aup), accessed 2026-11-10 |
+| Vercel Hobby | Not selected for production | See the previous dated provider research. | Excluded by the existing plan for this public multi-creator service. | `plan.md`, 2026-11-09 |
+| Google Search Console | SEO measurement | Existing docs record it as free; owner access and future analytics setup are unverified. | Review privacy and data minimization before adding analytics. | `docs/product/SEO_GROWTH.md`, accessed 2026-11-09 |
+| SMTP/email | Confirmation and operational contact | Sender/provider/card status and mailbox monitoring remain unverified. | Do not claim operational grievance email or notification delivery until tested. | `TODO.md`, accessed 2026-11-09 |
 
 ## Owner summary
 
-हर service का limit और policy check होगा।
-Free का मतलब unlimited नहीं है।
-Storage इस register से अलग है।
-कोई नया account या card बिना owner Yes नहीं।
-Secrets केवल provider dashboard में रहेंगे।
+यह register 2026-11-10 को जाँचा गया।
+Free account का मतलब free orders या unlimited usage नहीं है।
+कुछ providers की card और India वाली शर्तें unknown हैं।
+Printify Pop-Up Store की देश सूची में India नहीं है।
+Google और affiliate approval की guarantee नहीं है।
+कोई नया account, card या provider शुरू नहीं हुआ।
+Storage अलग निर्देश से ही बदलेगा।
