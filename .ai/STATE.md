@@ -1,12 +1,12 @@
 # Relay state
 - **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-10T04:54:32Z
-- **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff (manus-1 takeover).
+- **Heartbeat (UTC):** 2026-11-10T05:33:11Z
+- **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff — complete.
 - **Takeover:** manus-2 heartbeat was stale under the owner-authorized 10-minute threshold; manus-1 took over after reviewing the handoff.
 - **Owner authorization:** Owner asked this second connected Manus account to continue the email-confirmation/password-reset task. Existing 2026-11-09 authorization allows deployment through the gated GitHub Actions path only. No paid service/domain, SMTP-provider replacement, secret disclosure, or 18+ enablement is in scope. Repo rules prohibit account creation; no real email or account action was attempted.
 - **Owner-reported setup:** GitHub Actions Cloudflare deploy secrets, Cloudflare production runtime values, Supabase Site URL/redirect, and Brevo SMTP were previously reported saved. Treat these as owner-reported only; do not read/request secret values or mark email delivery verified without a test.
 - **Verified now:** `origin/main` is `0a766ac`; client typecheck/build passed, and GitHub Actions runs `42756205481` (relay), `42756205729` (security), and `42756205661` (Cloudflare deploy) completed successfully. Public `https://kamna.pages.dev/signin` loads the modern auth experience. The code/deployment checks are green.
 - **Resolved in code:** reset success notices now survive navigation, same-origin tabs receive auth/session notices, optional token-hash email/signup/recovery callbacks are handled, callback errors are bounded, and auth form IDs are unique. Cross-device browser navigation remains impossible by browser security design.
 - **Implementation scope complete:** same-browser auth-state/success UX, optional token-hash callback handling, email-template notes, and limitations are committed. Gallery Ash UI and 12-character reset policy were preserved. No storage, provider configuration, or deployment secrets changed.
-- **Evidence boundary:** owner reported four real-email acceptance checks passed: signup receipt, confirmation/automatic login, Supabase user creation, and password reset/new-password login. Moderator access remains unverified because the owner asked what that check means; keep T-005 open until the exact moderator test is recorded. Keep 18+ off.
-- **Next:** Owner should sign in with the exact configured moderator email, open `/moderation`, and confirm the queue loads; also confirm a normal user is denied. Then T-005 can be reviewed for completion. No account or email was created by this session.
+- **Evidence boundary:** owner confirmed all five Step 3 acceptance checks: signup receipt, confirmation/automatic login, Supabase user creation, password reset/new-password login, and moderator access. T-005 is complete. Keep 18+ off.
+- **Next:** Release the T-005 single-writer lock. No account or email was created by this session.

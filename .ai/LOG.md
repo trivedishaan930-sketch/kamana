@@ -37,3 +37,4 @@
 - 2026-11-10T04:29:36Z — manus-1 — Corrected relay metadata after verification found a literal heartbeat placeholder and stale origin hash; no product code changed.
 - 2026-11-10T04:39:15Z — manus-1 — Verified Step 3 production runs 42756205481/42756205729/42756205661 all succeeded. Updated relay state: implementation is complete and owner reports manual checks work, but exact real-email acceptance evidence is not yet recorded, so T-005 remains doing.
 - 2026-11-10T04:54:32Z — manus-1 — Recorded owner-reported pass for four Step 3 real-email checks and improved signup messaging: welcome confirmation for new identity, possible-existing-account sign-in guidance, and session welcome. Moderator access test remains pending and was explained in the review record.
+- 2026-11-10T05:33:11Z — manus-1 — Owner confirmed moderator access; all five Step 3 acceptance checks are now reported passed. Marked T-005 done and released its single-writer lock.
