@@ -1,7 +1,7 @@
 # Relay state
 
 - **Active agent:** manus-2
-- **Heartbeat (UTC):** 2026-11-10T06:38:30Z
+- **Heartbeat (UTC):** 2026-11-10T06:41:00Z
 - **Current task:** T-014 — stale manus-1 handoff taken over and task claim corrected to manus-2 at 2026-11-10T06:38:30Z under the owner-approved 10-minute stale-heartbeat rule. Derive the product brief, roadmap, PRD and next tasks from the owner's goals; provide the requested read-only directive/live-site report in chat.
 - **Current scope:** The latest owner request is docs-only for Part 1 and read-only for Part 2. Do not change application code, storage, provider settings, GitHub variables/secrets, or live configuration. No deploy was started by T-014.
 - **Previous task status:** T-005 was completed by the preceding relay on `main` (commit `1084b43`), and its status was reconciled in `83bdf23`. The owner reported all five Supabase Auth checks passed. This task will not repeat those tests or alter the deployment.
