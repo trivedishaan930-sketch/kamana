@@ -14,7 +14,7 @@ T-015 remains first. Correct the document title/meta description so Kamna is des
 
 ## Phase 0 — governance and measured baseline
 
-Keep the single-writer/stale-lock rule consistent in `AGENTS.md` and `.ai/DECISIONS.md`; current proposal is a 10-minute threshold and the owner will confirm it Yes/No. Mark the two 2026-11-09 reviews' reviewer agent/account as unknown unless primary evidence identifies them. Add the owner-requested protected-path and release-safety tasks to the backlog. Record measured search/mobile/accessibility/performance baselines before setting any numeric budget. Keep 18+ and monetization off.
+The owner confirmed Yes to a 10-minute single-writer/stale-lock threshold on 2026-11-10; `AGENTS.md` is the sole rule, and `.ai/DECISIONS.md` records the decision. The two 2026-11-09 reviews' reviewer agent/account remain unknown because no primary evidence identifies them. The owner-requested protected-path and release-safety tasks are in the backlog. Record measured search/mobile/accessibility/performance baselines before setting any numeric budget. Keep 18+ and monetization off.
 
 ## Phase 1 — seed the empty gallery without lowering moderation
 
