@@ -1,12 +1,12 @@
 # Relay state
-- **Active agent:** manus-2
-- **Heartbeat (UTC):** 2026-11-10T03:46:52Z
-- **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff.
-- **Takeover:** The prior manus-1 heartbeat was 2026-11-10T03:12:00Z, older than the owner's 10-minute threshold. manus-2 is the owner's newly connected second Manus account and has taken over T-005; no new external tool or provider account was enabled.
+- **Active agent:** manus-1
+- **Heartbeat (UTC):** {now}
+- **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff (manus-1 takeover).
+- **Takeover:** manus-2 heartbeat was stale under the owner-authorized 10-minute threshold; manus-1 took over after reviewing the handoff.
 - **Owner authorization:** Owner asked this second connected Manus account to continue the email-confirmation/password-reset task. Existing 2026-11-09 authorization allows deployment through the gated GitHub Actions path only. No paid service/domain, SMTP-provider replacement, secret disclosure, or 18+ enablement is in scope. Repo rules prohibit account creation; no real email or account action was attempted.
 - **Owner-reported setup:** GitHub Actions Cloudflare deploy secrets, Cloudflare production runtime values, Supabase Site URL/redirect, and Brevo SMTP were previously reported saved. Treat these as owner-reported only; do not read/request secret values or mark email delivery verified without a test.
 - **Verified now:** `origin/main` is `efcdcd7`; the last 20 commits were reviewed. GitHub Actions run `42747722379` completed successfully. Public `https://kamna.pages.dev/signin` loads the modern auth experience. No real auth flow was submitted, and no account/email was created. The local review checkout is based on the latest remote `main`.
 - **Confirmed UX issues:** the reset handler sets a success message and immediately navigates away, unmounting that message; a pre-opened `/signin` tab does not react to an auth session arriving in another same-origin tab; email recovery is PKCE-only and therefore requires the initiating browser context. The modal callback prop can also change identity during a callback render, and route+modal instances reuse field IDs.
 - **Immediate scope:** fix the confirmed same-browser auth-state/success UX, add optional Supabase token-hash callback handling for cross-browser email links, and document the email-template setup and limitations. Preserve the Gallery Ash UI and 12-character reset policy. Do not modify storage, provider configuration, or deployment secrets.
 - **Not verified:** owner test-inbox delivery, real signup/confirmation, reset email click/password update, moderator allowlist match, upload/moderation E2E. Keep T-005 in progress and 18+ off until those checks are owner-authorized and evidenced.
-- **Next:** build/typecheck; read-only independent peer review; update this state/log; push small commits to `main` with the required Agent/Session trailers. If auth email testing needs an owner inbox, stop and document the handoff instead of creating an account or sending email.
+- **Next:** implement the remaining client auth fixes, build/typecheck, conduct read-only peer review, and push small commits. Real inbox E2E remains unverified; do not create an account or send email.
