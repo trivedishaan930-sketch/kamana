@@ -1,12 +1,11 @@
 # Relay state
+
 - **Active agent:** manus-1
-- **Heartbeat (UTC):** 2026-11-10T05:33:11Z
-- **Current task:** T-005 — auth confirmation/recovery UX verification and approved deployment handoff — complete.
-- **Takeover:** manus-2 heartbeat was stale under the owner-authorized 10-minute threshold; manus-1 took over after reviewing the handoff.
-- **Owner authorization:** Owner asked this second connected Manus account to continue the email-confirmation/password-reset task. Existing 2026-11-09 authorization allows deployment through the gated GitHub Actions path only. No paid service/domain, SMTP-provider replacement, secret disclosure, or 18+ enablement is in scope. Repo rules prohibit account creation; no real email or account action was attempted.
-- **Owner-reported setup:** GitHub Actions Cloudflare deploy secrets, Cloudflare production runtime values, Supabase Site URL/redirect, and Brevo SMTP were previously reported saved. Treat these as owner-reported only; do not read/request secret values or mark email delivery verified without a test.
-- **Verified now:** `origin/main` is `0a766ac`; client typecheck/build passed, and GitHub Actions runs `42756205481` (relay), `42756205729` (security), and `42756205661` (Cloudflare deploy) completed successfully. Public `https://kamna.pages.dev/signin` loads the modern auth experience. The code/deployment checks are green.
-- **Resolved in code:** reset success notices now survive navigation, same-origin tabs receive auth/session notices, optional token-hash email/signup/recovery callbacks are handled, callback errors are bounded, and auth form IDs are unique. Cross-device browser navigation remains impossible by browser security design.
-- **Implementation scope complete:** same-browser auth-state/success UX, optional token-hash callback handling, email-template notes, and limitations are committed. Gallery Ash UI and 12-character reset policy were preserved. No storage, provider configuration, or deployment secrets changed.
-- **Evidence boundary:** owner confirmed all five Step 3 acceptance checks: signup receipt, confirmation/automatic login, Supabase user creation, password reset/new-password login, and moderator access. T-005 is complete. Keep 18+ off.
-- **Next:** Release the T-005 single-writer lock. No account or email was created by this session.
+- **Heartbeat (UTC):** 2026-11-10T06:02:24Z
+- **Current task:** T-014 — derive the product brief, roadmap, PRD and next tasks from the owner's goals; provide the requested read-only directive/live-site report in chat.
+- **Current scope:** The latest owner request is docs-only for Part 1 and read-only for Part 2. Do not change application code, storage, provider settings, GitHub variables/secrets, or live configuration. No deploy was started by T-014.
+- **Previous task status:** T-005 was completed by the preceding relay on `main` (commit `1084b43`), and its status was reconciled in `83bdf23`. The owner reported all five Supabase Auth checks passed. This task will not repeat those tests or alter the deployment.
+- **Current production evidence:** Cloudflare Pages API lists latest successful production deployment ID `4f194123-6df8-465e-82cc-9d8b216c2bf3` at `https://4f194123.kamna.pages.dev`, created `2026-11-10T05:48:38Z`. GitHub Actions runs `42764374840` (Cloudflare Pages deploy), `42764374639` (security analysis), and `42764374595` (AI relay checks) all completed successfully. The production URL's page behavior still needs direct read-only verification for the requested audit.
+- **Upstream handoff reviewed:** At task start the local checkout was `c601fd8`; a concurrent `origin/main` update (`1084b43` and `83bdf23`) completed T-005 and updated the deployed-beta status. Rebase conflicts are being resolved by preserving the newer upstream completion evidence and the T-014 claim. No history is being rewritten or force-pushed.
+- **Open product questions:** Current routes, category count, public download, search, masonry layout, upload/admin surfaces, and live title/meta require source and public-URL checks. User says the current meta description is stale; confirm this read-only, then list its correction as the first code task after the new roadmap receives Yes. No numeric KPI target may be invented; establish a baseline first.
+- **Storage:** Separate directive; unchanged and out of scope.
