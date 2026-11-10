@@ -35,3 +35,4 @@
 - 2026-11-10T04:24:20Z — manus-1 — Took over stale manus-2 T-005 handoff under the owner-authorized 10-minute threshold after reviewing origin/main and the handoff review.
 - 2026-11-10T04:29:00Z — manus-1 — Implemented T-005 client auth fixes: token-hash email/signup/recovery callback support, callback error boundary, neutral redirect hints, same-origin notice broadcast, auth-event routing, reset success notice, and unique form IDs. Typecheck/build/static assertions passed; real inbox E2E remains unverified.
 - 2026-11-10T04:29:36Z — manus-1 — Corrected relay metadata after verification found a literal heartbeat placeholder and stale origin hash; no product code changed.
+- 2026-11-10T04:39:15Z — manus-1 — Verified Step 3 production runs 42756205481/42756205729/42756205661 all succeeded. Updated relay state: implementation is complete and owner reports manual checks work, but exact real-email acceptance evidence is not yet recorded, so T-005 remains doing.
