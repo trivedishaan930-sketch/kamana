@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { Link, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Search, ShieldCheck, UploadCloud } from 'lucide-react';
+import type { EmailOtpType } from '@supabase/supabase-js';
 import { api, ApiError, type Artwork, type Report } from './lib/api';
 import { getPublicProfile, getSession, supabase, supabaseConfigured, type Session } from './lib/supabase';
 
@@ -69,6 +70,23 @@ function passwordStrength(password: string): string {
   return 'Strong passphrase length.';
 }
 
+const AUTH_NOTICE_KEY = 'kamna.auth.notice';
+const AUTH_CHANNEL = 'kamna-auth-events';
+
+function publishAuthNotice(message: string) {
+  if (typeof window === 'undefined') return;
+  const payload = JSON.stringify({ message, at: Date.now() });
+  window.localStorage.setItem(AUTH_NOTICE_KEY, payload);
+  window.dispatchEvent(new CustomEvent('kamna-auth-notice', { detail: payload }));
+  try {
+    const channel = new BroadcastChannel(AUTH_CHANNEL);
+    channel.postMessage(payload);
+    channel.close();
+  } catch {
+    // BroadcastChannel is optional; Supabase's session storage event remains the fallback.
+  }
+}
+
 function SignIn({ onClose }: { onClose?: () => void }) {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>('signin');
   const [email, setEmail] = useState('');
@@ -81,6 +99,12 @@ function SignIn({ onClose }: { onClose?: () => void }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const onCloseRef = useRef(onClose);
+  const fieldPrefix = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     const client = supabase;
@@ -90,36 +114,53 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
     const recoveryRequested = searchParams.get('mode') === 'reset' || hashParams.get('type') === 'recovery';
     if (recoveryRequested) setMode('reset');
+    if (searchParams.get('confirmed') === '1') setMessage('Confirmation link opened. We are checking your account session.');
+    if (searchParams.get('updated') === '1') setMessage('Password update completed. We are checking your account session.');
     async function completeConfirmation() {
       const code = searchParams.get('code');
+      const tokenHash = searchParams.get('token_hash');
+      const tokenType = searchParams.get('type') as EmailOtpType | null;
       const redirectError = searchParams.get('error_description') || searchParams.get('error');
       if (redirectError) {
-        setMessage(decodeURIComponent(redirectError.replace(/\+/g, ' ')));
+        setMessage(redirectError.replace(/\+/g, ' '));
         return;
       }
-      if (!code) return;
+      if (!code && !(tokenHash && (tokenType === 'email' || tokenType === 'signup' || tokenType === 'recovery'))) return;
       setBusy(true);
-      const { data, error } = await client!.auth.exchangeCodeForSession(code);
-      if (!active) return;
-      if (error) {
-        setMessage(errorMessage(error, 'The confirmation link is invalid or has expired. Request a new confirmation email.'));
-        setShowResend(true);
-      } else if (data.session) {
-        if (recoveryRequested) {
-          setMode('reset');
-          setMessage('Password reset link verified. Choose a new password below.');
-          navigate('/signin?mode=reset', { replace: true });
-        } else {
-          setMessage('Email confirmed. You are signed in.');
-          onClose?.();
-          navigate('/account', { replace: true });
+      try {
+        const result = code
+          ? await client!.auth.exchangeCodeForSession(code)
+          : await client!.auth.verifyOtp({ token_hash: tokenHash!, type: tokenType! });
+        const { data, error } = result;
+        if (!active) return;
+        if (error) {
+          setMessage(errorMessage(error, 'The confirmation link is invalid or has expired. Request a new confirmation email.'));
+          setShowResend(true);
+        } else if (data.session) {
+          if (recoveryRequested) {
+            setMode('reset');
+            setMessage('Password reset link verified. Choose a new password below.');
+            publishAuthNotice('Password reset link verified. Choose a new password in the open Kamna tab.');
+            navigate('/signin?mode=reset', { replace: true });
+          } else {
+            setMessage('Email confirmed. You are signed in.');
+            publishAuthNotice('Email confirmed. Your Kamna account is ready.');
+            onCloseRef.current?.();
+            navigate('/account', { replace: true });
+          }
         }
+      } catch (error) {
+        if (active) {
+          setMessage(errorMessage(error, 'We could not verify this link. Request a new email and try again.'));
+          setShowResend(true);
+        }
+      } finally {
+        if (active) setBusy(false);
       }
-      setBusy(false);
     }
     void completeConfirmation();
     return () => { active = false; };
-  }, [navigate, onClose]);
+  }, [navigate]);
 
   function switchMode(next: 'signin' | 'signup' | 'forgot' | 'reset') {
     setMode(next);
@@ -139,7 +180,7 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     setResending(true);
     setMessage('');
     try {
-      const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim(), options: { emailRedirectTo: `${location.origin}/signin` } });
+      const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim(), options: { emailRedirectTo: `${location.origin}/signin?confirmed=1` } });
       if (error) throw error;
       setMessage('If this account needs confirmation, a new email was requested. Check Inbox and Spam.');
       setShowResend(false);
@@ -163,15 +204,17 @@ function SignIn({ onClose }: { onClose?: () => void }) {
         if (password !== confirmPassword) { setMessage('Passwords do not match.'); return; }
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
-        setMessage('Password updated. You are signed in.');
-        onClose?.();
-        navigate('/account', { replace: true });
+        const successMessage = 'Password updated successfully. Your open Kamna tab is now up to date.';
+        setMessage(successMessage);
+        publishAuthNotice(successMessage);
+        onCloseRef.current?.();
+        navigate('/account?updated=1', { replace: true });
       } else if (mode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${location.origin}/signin` } });
+        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${location.origin}/signin?confirmed=1` } });
         if (error) throw error;
         setShowResend(!data.session);
         setMessage(data.session ? 'Account created and signed in.' : 'If this email is new, a confirmation email was sent. If you already have an account, use Sign in or Forgot password.');
-        if (data.session) { onClose?.(); navigate('/account'); }
+        if (data.session) { publishAuthNotice('Account created. You are signed in.'); onCloseRef.current?.(); navigate('/account'); }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) {
@@ -179,7 +222,7 @@ function SignIn({ onClose }: { onClose?: () => void }) {
           setShowResend(code === 'email_not_confirmed' || /confirm|verify|not active/i.test(error.message));
           throw error;
         }
-        onClose?.();
+        onCloseRef.current?.();
         navigate('/account');
       }
     } catch (error) {
@@ -196,9 +239,9 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     <section className="auth-panel" aria-labelledby="auth-title"><div className="auth-panel-top"><span className="auth-panel-kicker">{mode === 'reset' ? 'RECOVERY / VERIFIED LINK' : mode === 'forgot' ? 'ACCOUNT / RECOVERY' : 'WELCOME TO KAMNA'}</span><span className="auth-index">{mode === 'reset' ? '04' : mode === 'forgot' ? '03' : mode === 'signup' ? '02' : '01'} / 04</span></div><div className="auth-panel-head"><h2 id="auth-title">{title}</h2><p>{mode === 'forgot' ? 'Enter your email and we will send a secure reset link. The same response is shown whether or not an account exists.' : mode === 'reset' ? 'Choose a new password for your Kamna account.' : 'Use email and password. New accounts require email confirmation.'}</p></div>
       {!supabaseConfigured && <Setup/>}
       <form onSubmit={submit}>
-        <div className="field"><label htmlFor="email">Email address</label><input id="email" type="email" required={mode !== 'reset'} autoComplete="email" placeholder="you@example.com" value={email} onChange={event => setEmail(event.target.value)}/></div>
-        {needsPassword && <div className="field"><div className="auth-label-row"><label htmlFor="password">{mode === 'reset' ? 'New password' : 'Password'}</label>{mode === 'signin' && <button type="button" className="auth-inline-link" onClick={() => switchMode('forgot')}>Forgot password?</button>}</div><div className="auth-password-wrap"><input id="password" type={showPassword ? 'text' : 'password'} required minLength={mode === 'signin' ? 1 : 12} maxLength={128} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} placeholder={mode === 'signin' ? 'Enter your password' : '12+ character passphrase'} value={password} onChange={event => setPassword(event.target.value)}/><button type="button" className="auth-show-button" onClick={() => setShowPassword(value => !value)} aria-pressed={showPassword}>{showPassword ? 'Hide' : 'Show'}</button></div>{mode !== 'signin' && password && <small className="auth-helper">{passwordStrength(password)}</small>}</div>}
-        {mode === 'reset' && <div className="field"><label htmlFor="confirm-password">Confirm new password</label><div className="auth-password-wrap"><input id="confirm-password" type={showConfirmPassword ? 'text' : 'password'} required minLength={12} maxLength={128} autoComplete="new-password" placeholder="Repeat your new password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)}/><button type="button" className="auth-show-button" onClick={() => setShowConfirmPassword(value => !value)} aria-pressed={showConfirmPassword}>{showConfirmPassword ? 'Hide' : 'Show'}</button></div></div>}
+        <div className="field"><label htmlFor={`${fieldPrefix}-email`}>Email address</label><input id={`${fieldPrefix}-email`} type="email" required={mode !== 'reset'} autoComplete="email" placeholder="you@example.com" value={email} onChange={event => setEmail(event.target.value)}/></div>
+        {needsPassword && <div className="field"><div className="auth-label-row"><label htmlFor={`${fieldPrefix}-password`}>{mode === 'reset' ? 'New password' : 'Password'}</label>{mode === 'signin' && <button type="button" className="auth-inline-link" onClick={() => switchMode('forgot')}>Forgot password?</button>}</div><div className="auth-password-wrap"><input id={`${fieldPrefix}-password`} type={showPassword ? 'text' : 'password'} required minLength={mode === 'signin' ? 1 : 12} maxLength={128} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} placeholder={mode === 'signin' ? 'Enter your password' : '12+ character passphrase'} value={password} onChange={event => setPassword(event.target.value)}/><button type="button" className="auth-show-button" onClick={() => setShowPassword(value => !value)} aria-pressed={showPassword}>{showPassword ? 'Hide' : 'Show'}</button></div>{mode !== 'signin' && password && <small className="auth-helper">{passwordStrength(password)}</small>}</div>}
+        {mode === 'reset' && <div className="field"><label htmlFor={`${fieldPrefix}-confirm-password`}>Confirm new password</label><div className="auth-password-wrap"><input id={`${fieldPrefix}-confirm-password`} type={showConfirmPassword ? 'text' : 'password'} required minLength={12} maxLength={128} autoComplete="new-password" placeholder="Repeat your new password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)}/><button type="button" className="auth-show-button" onClick={() => setShowConfirmPassword(value => !value)} aria-pressed={showConfirmPassword}>{showConfirmPassword ? 'Hide' : 'Show'}</button></div></div>}
         {message && <p role="status" className="auth-message">{message}</p>}
         {showResend && <button type="button" className="button-secondary auth-secondary-button" disabled={resending || busy} onClick={() => void resendConfirmation()}>{resending ? 'Sending…' : 'Resend confirmation email'}</button>}
         <button className="button-primary auth-submit" disabled={busy || !supabase}>{busy ? 'Please wait…' : mode === 'signin' ? 'Continue to Kamna' : mode === 'signup' ? 'Create your account' : mode === 'forgot' ? 'Send secure reset link' : 'Update password'}</button>
@@ -436,14 +479,52 @@ function TermsPage() {
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authModal, setAuthModal] = useState(false);
+  const [authNotice, setAuthNotice] = useState('');
   const [checking, setChecking] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
   useEffect(() => {
     let alive = true;
     getSession().then(value => { if (alive) setSession(value); }).catch(() => {}).finally(() => { if (alive) setChecking(false); });
-    const listener = supabase?.auth.onAuthStateChange((_event, value) => setSession(value));
-    return () => { alive = false; listener?.data.subscription.unsubscribe(); };
-  }, []);
-  return <div className="site-shell"><Header session={session} onAuth={() => setAuthModal(true)}/>{!supabaseConfigured && <div className="main-content"><Setup/></div>}{checking ? <main className="main-content"><p role="status" className="empty-results">Checking account session…</p></main> : <Routes>
+    const listener = supabase?.auth.onAuthStateChange((event, value) => {
+      setSession(value);
+      if (event === 'SIGNED_IN' && location.pathname === '/signin' && !location.search.includes('mode=reset')) {
+        publishAuthNotice('Email confirmed. Your account is ready in this tab.');
+        navigate('/account', { replace: true });
+      }
+      if (event === 'PASSWORD_RECOVERY' && location.pathname !== '/signin') {
+        navigate('/signin?mode=reset', { replace: true });
+      }
+      if (event === 'USER_UPDATED') {
+        publishAuthNotice('Password updated successfully. All open Kamna tabs are up to date.');
+        if (location.pathname === '/signin') navigate('/account?updated=1', { replace: true });
+      }
+    });
+    const receiveNotice = (raw: string) => {
+      try {
+        const payload = JSON.parse(raw) as { message?: string; at?: number };
+        if (payload.message && (!payload.at || Date.now() - payload.at < 60_000)) {
+          setAuthNotice(payload.message);
+          window.setTimeout(() => setAuthNotice(current => current === payload.message ? '' : current), 6500);
+        }
+      } catch {
+        // Ignore malformed cross-tab notices.
+      }
+    };
+    const onStorage = (event: StorageEvent) => { if (event.key === AUTH_NOTICE_KEY && event.newValue) receiveNotice(event.newValue); };
+    const onCustomNotice = (event: Event) => { const detail = (event as CustomEvent<string>).detail; if (detail) receiveNotice(detail); };
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('kamna-auth-notice', onCustomNotice);
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel(AUTH_CHANNEL);
+      channel.onmessage = event => { if (typeof event.data === 'string') receiveNotice(event.data); };
+    } catch {
+      // Storage and Supabase session events still provide same-browser fallback.
+    }
+    return () => { alive = false; listener?.data.subscription.unsubscribe(); window.removeEventListener('storage', onStorage); window.removeEventListener('kamna-auth-notice', onCustomNotice); channel?.close(); };
+  }, [location.pathname, location.search, navigate]);
+  return <div className="site-shell"><Header session={session} onAuth={() => setAuthModal(true)}/>{authNotice && <div className="auth-event-notice" role="status">{authNotice}</div>}{!supabaseConfigured && <div className="main-content"><Setup/></div>}{checking ? <main className="main-content"><p role="status" className="empty-results">Checking account session…</p></main> : <Routes>
     <Route path="/" element={<Gallery/>}/><Route path="/18-plus" element={<AdultGallery session={session}/>}/><Route path="/artwork/:id" element={<Detail/>}/><Route path="/signin" element={<SignIn/>}/><Route path="/upload" element={<Upload session={session}/>}/><Route path="/account" element={session ? <Account/> : <SignIn/>}/><Route path="/profile/:handle" element={<Profile/>}/><Route path="/report" element={<ReportPage/>}/><Route path="/moderation" element={<Admin/>}/><Route path="/rules" element={<RulesPage/>}/><Route path="/privacy" element={<PrivacyPage/>}/><Route path="/terms" element={<TermsPage/>}/><Route path="*" element={<Page title="Page not found"><Link to="/" className="button-secondary">Return to gallery</Link></Page>}/>
   </Routes>}
   <Footer/>{authModal && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setAuthModal(false); }}><div className="modal" role="dialog" aria-modal="true" aria-label="Sign in"><button className="modal-close" onClick={() => setAuthModal(false)} aria-label="Close">×</button><SignIn onClose={() => setAuthModal(false)}/></div></div>}</div>;
