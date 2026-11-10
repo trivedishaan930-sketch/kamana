@@ -1,11 +1,11 @@
 # Relay state
 
 - **Active agent:** manus-2
-- **Heartbeat (UTC):** 2026-11-10T06:51:30Z
-- **Current task:** T-014 is complete. Wait for the owner’s Yes/No on the revised roadmap in `.ai/OWNER_QUESTIONS.md` before starting T-015.
+- **Heartbeat (UTC):** 2026-11-10T07:10:00Z
+- **Current task:** T-022 — update the approved roadmap/task sequence with owner additions, document one proposed 10-minute stale-lock rule, and mark the two historic review identities unknown where unsupported. The owner has approved the roadmap; T-015 remains first implementation task.
 - **Task scope/outcome:** Part 1 was documentation-only; Part 2 is a read-only report in chat. `OWNER_BRIEF.md`, `ROADMAP.md`, `PRD.md`, tasks, the owner question and dated monetization research are updated. No app code, storage, provider settings, GitHub variables/secrets, or live configuration was manually changed.
 - **Production/auth baseline:** Cloudflare Pages beta and Supabase Auth Step 3 remain as previously recorded, based on owner-reported five-check evidence. The production app code is unchanged from the earlier verified deployment. Broader upload, moderation, report/removal and public-download E2E gates remain open.
 - **Current live-site evidence (2026-11-10):** Homepage title is `Kamna — Art beyond the ordinary`; meta description still says `Kamna — an 18+ community for lawful, fictional AI artwork.`; the robots meta tag is absent. Nine general categories and search/tag UI are visible; no approved works are visible. CSS is equal-column, not masonry. Anonymous `/upload` shows a confirmed-sign-in requirement. `/moderation` exists and tells anonymous users to sign in with a confirmed account; there is no `/admin` route. The general-approved download handler has no sign-in guard, but no real approved work exists for an end-to-end test.
 - **Actions:** latest runs for docs commit `bd51fe6` completed successfully: AI relay checks `42770707275`, Security analysis `42770707083`, Cloudflare Pages deploy `42770707062`. Deploy was workflow-triggered by the docs-only push; no deployment setting or code was manually changed.
-- **Roadmap gate:** the earlier Yes applied to the previous roadmap. The revised roadmap still needs a fresh owner Yes. Search/mobile/performance and traffic have no measured numeric baseline; do not invent KPI targets. Owner earnings remain off; creator benefits are later design only.
+- **Roadmap gate:** owner approved the revised roadmap and the requested additions on 2026-11-10. T-015 remains the first implementation task. Search/mobile/performance and traffic have no measured numeric baseline; do not invent KPI targets. Owner earnings remain off; creator benefits are later design only.
 - **Storage:** separate directive; unchanged and out of scope.
