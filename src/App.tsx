@@ -62,6 +62,13 @@ function Page({ title, children }: { title: string; children: ReactNode }) {
   return <main className="main-content"><div className="page-intro"><div className="eyebrow">Kamna · non-explicit beta</div><h1>{title}</h1></div>{children}</main>;
 }
 
+function passwordStrength(password: string): string {
+  if (!password) return '';
+  if (password.length < 12) return 'Use at least 12 characters for a stronger passphrase.';
+  if (password.length < 15) return 'Good length. A longer passphrase is stronger.';
+  return 'Strong passphrase length.';
+}
+
 function SignIn({ onClose }: { onClose?: () => void }) {
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'reset'>('signin');
   const [email, setEmail] = useState('');
@@ -71,18 +78,21 @@ function SignIn({ onClose }: { onClose?: () => void }) {
   const [busy, setBusy] = useState(false);
   const [resending, setResending] = useState(false);
   const [showResend, setShowResend] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const client = supabase;
     if (!client) return;
     let active = true;
+    const searchParams = new URLSearchParams(location.search);
     const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
-    if (hashParams.get('type') === 'recovery') setMode('reset');
+    const recoveryRequested = searchParams.get('mode') === 'reset' || hashParams.get('type') === 'recovery';
+    if (recoveryRequested) setMode('reset');
     async function completeConfirmation() {
-      const params = new URLSearchParams(location.search);
-      const code = params.get('code');
-      const redirectError = params.get('error_description') || params.get('error');
+      const code = searchParams.get('code');
+      const redirectError = searchParams.get('error_description') || searchParams.get('error');
       if (redirectError) {
         setMessage(decodeURIComponent(redirectError.replace(/\+/g, ' ')));
         return;
@@ -95,9 +105,15 @@ function SignIn({ onClose }: { onClose?: () => void }) {
         setMessage(errorMessage(error, 'The confirmation link is invalid or has expired. Request a new confirmation email.'));
         setShowResend(true);
       } else if (data.session) {
-        setMessage('Email confirmed. You are signed in.');
-        onClose?.();
-        navigate('/account', { replace: true });
+        if (recoveryRequested) {
+          setMode('reset');
+          setMessage('Password reset link verified. Choose a new password below.');
+          navigate('/signin?mode=reset', { replace: true });
+        } else {
+          setMessage('Email confirmed. You are signed in.');
+          onClose?.();
+          navigate('/account', { replace: true });
+        }
       }
       setBusy(false);
     }
@@ -111,6 +127,8 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     setShowResend(false);
     setPassword('');
     setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }
 
   async function resendConfirmation() {
@@ -137,7 +155,7 @@ function SignIn({ onClose }: { onClose?: () => void }) {
     setMessage('');
     try {
       if (mode === 'forgot') {
-        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${location.origin}/signin` });
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${location.origin}/signin?mode=reset` });
         if (error) throw error;
         setMessage('If an account uses this email, a password-reset link was requested. Check Inbox and Spam.');
         setMode('signin');
@@ -172,12 +190,12 @@ function SignIn({ onClose }: { onClose?: () => void }) {
   const title = mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create an account' : mode === 'forgot' ? 'Reset your password' : 'Choose a new password';
   const needsPassword = mode === 'signin' || mode === 'signup' || mode === 'reset';
   return <Page title={title}><section className="form-card auth-card">
-    <p>{mode === 'forgot' ? 'Enter your email and we will send a secure reset link. For privacy, the same message is shown whether or not an account exists.' : mode === 'reset' ? 'Choose a new password for your Kamna account.' : 'Use email and password. New accounts require email confirmation; we will not create a demo or local account.'}</p>
+    <p>{mode === 'forgot' ? 'Enter your email and we will send a secure reset link. For privacy, the same message is shown whether or not an account exists.' : mode === 'reset' ? 'Choose a new password for your Kamna account.' : 'Use email and password. New accounts require email confirmation. For privacy, Kamna never reveals whether a particular email is registered.'}</p>
     {!supabaseConfigured && <Setup/>}
     <form onSubmit={submit}>
       <div className="field"><label htmlFor="email">Email</label><input id="email" type="email" required={mode !== 'reset'} autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/></div>
-      {needsPassword && <div className="field"><label htmlFor="password">{mode === 'reset' ? 'New password' : 'Password'}</label><input id="password" type="password" required minLength={8} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)}/></div>}
-      {mode === 'reset' && <div className="field"><label htmlFor="confirm-password">Confirm new password</label><input id="confirm-password" type="password" required minLength={8} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)}/></div>}
+      {needsPassword && <div className="field"><label htmlFor="password">{mode === 'reset' ? 'New password' : 'Password'}</label><input id="password" type={showPassword ? 'text' : 'password'} required minLength={mode === 'signin' ? 1 : 12} maxLength={128} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)}/><button type="button" className="button-quiet" onClick={() => setShowPassword(value => !value)} aria-pressed={showPassword}>{showPassword ? 'Hide password' : 'Show password'}</button>{mode !== 'signin' && password && <small>{passwordStrength(password)}</small>}</div>}
+      {mode === 'reset' && <div className="field"><label htmlFor="confirm-password">Confirm new password</label><input id="confirm-password" type={showConfirmPassword ? 'text' : 'password'} required minLength={12} maxLength={128} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)}/><button type="button" className="button-quiet" onClick={() => setShowConfirmPassword(value => !value)} aria-pressed={showConfirmPassword}>{showConfirmPassword ? 'Hide confirmation' : 'Show confirmation'}</button></div>}
       {message && <p role="status">{message}</p>}
       {showResend && <button type="button" className="button-secondary" disabled={resending || busy} onClick={() => void resendConfirmation()}>{resending ? 'Sending…' : 'Resend confirmation email'}</button>}
       <button className="button-primary" disabled={busy || !supabase}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Sign up' : mode === 'forgot' ? 'Send reset link' : 'Update password'}</button>
