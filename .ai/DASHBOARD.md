@@ -1,8 +1,8 @@
 # Kamna weekly scorecard
 
-Generated (UTC): 2026-11-11T13:29:01.528448+00:00
-Window (UTC): 2026-11-04T13:29:01.528448+00:00 through 2026-11-11T13:29:01.528448+00:00 (rolling seven days)
-TARGETS status: proposed — pending owner Yes/No
+Generated (UTC): 2026-11-11T13:41:50.645793+00:00
+Window (UTC): 2026-11-04T13:41:50.645793+00:00 through 2026-11-11T13:41:50.645793+00:00 (rolling seven days)
+TARGETS status: not recorded
 Targets in this report are observations or proposals only; this Action never approves or changes a target.
 18+ collection and monetization: OFF.
 
@@ -32,7 +32,7 @@ No earning feature is enabled; each step still needs current provider-policy che
 |---|---|
 | New-agent resume time | not measured — no consistent resume-start and first-action timestamps |
 | Truly independent review share | not measured — complete task/reviewer/account linkage is not yet consistent |
-| CI green rate | 164/171 successful scored runs (95.9%; observed, no target set); completion-time proxy=updated_at; scanned=215 runs; skipped=0, cancelled=0 |
+| CI green rate | 167/174 successful scored runs (96.0%; observed, no target set); completion-time proxy=updated_at; scanned=219 runs; skipped=0, cancelled=0 |
 | Repeated error types | not measured — error causes are free text without a normalized type taxonomy |
 | Stale-lock takeovers | 7 explicitly documented in the seven-day window; count only, not a target |
 | Tasks per session | not measured — the Session trailer is an account/tool label, not a unique session ID |
@@ -42,14 +42,13 @@ This Action reports observations only; it never edits or approves a target.
 
 ## Relay health
 - Active agent: manus-2
-- Current task: T-021 in progress — time-box two visual proposals, obtain two independent rubric scores, and select one before UI implementation.
-- Heartbeat: 2026-11-11T13:28:14Z (age: 0 minutes)
+- Current task: T-032 in progress — implement the home page using the selected Proposal A.
+- Heartbeat: 2026-11-11T13:39:57Z (age: 1 minutes)
 - Stale lock (>=10m): no
-- Tasks: todo 17; in progress 1; done 11; blocked 2
+- Tasks: todo 20; in progress 1; done 12; blocked 2
 - Pending owner questions: 1
 - Dated error-table entries recorded: 10 (not equivalent to repeated error types)
 
 ## Flags
-- TARGETS approval is pending
 - owner questions are open
 - no approved general-audience works are visible
