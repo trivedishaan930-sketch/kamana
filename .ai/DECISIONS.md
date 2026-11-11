@@ -19,3 +19,6 @@
 
 
 27. **Latest T-031 scorecard observations (2026-11-11; TARGETS approval still pending):** Automated Action run `42968283526` generated the scorecard at `2026-11-11T05:49:52Z`: 152/159 scored CI runs succeeded (95.6%), with 0 skipped, 0 cancelled, and 198 workflow-run records scanned; the stale-lock parser matched 6 entries. These replace the earlier local preview as the latest documented observations in `docs/product/TARGETS.md`; they are measurements, not targets. No target or feature was activated, and the single owner Yes/No gate remains open.
+
+
+28. **T-031 follow-up scorecard snapshot (2026-11-11; TARGETS approval still pending):** Action run `42968762882` generated the weekly report at `2026-11-11T05:54:21Z`: 155/162 scored CI runs succeeded (95.7%), with 0 skipped, 0 cancelled, and 202 workflow-run records scanned; six stale-lock entries were counted. `docs/product/TARGETS.md` now records this dated baseline snapshot, while `.ai/DASHBOARD.md` remains the live weekly reading. This changes no target values, approval status, or monetization/18+ availability.
