@@ -1,7 +1,7 @@
 # Kamna weekly scorecard
 
-Generated (UTC): 2026-11-11T05:54:21.891638+00:00
-Window (UTC): 2026-11-04T05:54:21.891638+00:00 through 2026-11-11T05:54:21.891638+00:00 (rolling seven days)
+Generated (UTC): 2026-11-11T05:59:42.796773+00:00
+Window (UTC): 2026-11-04T05:59:42.796773+00:00 through 2026-11-11T05:59:42.796773+00:00 (rolling seven days)
 TARGETS status: proposed — pending owner Yes/No
 Targets in this report are observations or proposals only; this Action never approves or changes a target.
 18+ collection and monetization: OFF.
@@ -32,7 +32,7 @@ No earning feature is enabled; each step still needs current provider-policy che
 |---|---|
 | New-agent resume time | not measured — no consistent resume-start and first-action timestamps |
 | Truly independent review share | not measured — complete task/reviewer/account linkage is not yet consistent |
-| CI green rate | 155/162 successful scored runs (95.7%; observed, no target set); completion-time proxy=updated_at; scanned=202 runs; skipped=0, cancelled=0 |
+| CI green rate | 158/165 successful scored runs (95.8%; observed, no target set); completion-time proxy=updated_at; scanned=206 runs; skipped=0, cancelled=0 |
 | Repeated error types | not measured — error causes are free text without a normalized type taxonomy |
 | Stale-lock takeovers | 6 explicitly documented in the seven-day window; count only, not a target |
 | Tasks per session | not measured — the Session trailer is an account/tool label, not a unique session ID |
@@ -43,7 +43,7 @@ This Action reports observations only; it never edits or approves a target.
 ## Relay health
 - Active agent: manus-2
 - Current task: T-031 in progress — product/system targets and weekly scorecard, docs/workflow only.
-- Heartbeat: 2026-11-11T05:52:13Z (age: 2 minutes)
+- Heartbeat: 2026-11-11T05:58:50Z (age: 0 minutes)
 - Stale lock (>=10m): no
 - Tasks: todo 18; in progress 1; done 11; blocked 1
 - Pending owner questions: 1
