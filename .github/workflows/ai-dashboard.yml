@@ -2,10 +2,15 @@ name: AI relay dashboard
 
 on:
   schedule:
-    - cron: '17 2 * * *'
+    - cron: '17 2 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - '.ai/**'
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
 
 concurrency:
@@ -14,55 +19,271 @@ concurrency:
 
 jobs:
   dashboard:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
-      - name: Regenerate dashboard
+      - name: Pull latest main before measuring
         shell: bash
+        run: git pull --rebase origin main
+      - name: Generate weekly scorecard
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python3 - <<'PY'
-          from datetime import datetime, timezone
+          from datetime import datetime, timedelta, timezone
           from pathlib import Path
+          from urllib.error import HTTPError, URLError
+          from urllib.parse import urlencode
+          from urllib.request import Request, urlopen
+          import json
+          import os
           import re
-          state = Path('.ai/STATE.md').read_text()
-          tasks = Path('.ai/TASKS.md').read_text()
-          reviews = [p for p in Path('.ai/REVIEWS').glob('*.md') if p.name != 'REVIEW_TEMPLATE.md'] if Path('.ai/REVIEWS').exists() else []
-          errors = Path('.ai/ERRORS.md').read_text() if Path('.ai/ERRORS.md').exists() else ''
-          questions = Path('.ai/OWNER_QUESTIONS.md').read_text() if Path('.ai/OWNER_QUESTIONS.md').exists() else ''
-          heartbeat = re.search(r'Heartbeat \(UTC\):\*\*\s*([^\n]+)', state)
-          active = re.search(r'Active agent:\*\*\s*([^\n]+)', state)
-          rows = re.findall(r'^\|\s*(T-\d+)\s*\|.*?\|\s*(todo|doing|done|blocked)\s*\|', tasks, re.M)
-          counts = {key: sum(status == key for _, status in rows) for key in ('todo', 'doing', 'done', 'blocked')}
-          stale = 'unknown'
-          if heartbeat:
+
+          now = datetime.now(timezone.utc)
+          since = now - timedelta(days=7)
+          repo = os.environ.get('GITHUB_REPOSITORY', '')
+          token = os.environ.get('GITHUB_TOKEN', '')
+
+          def read(path, fallback=''):
               try:
-                  stamp = datetime.fromisoformat(heartbeat.group(1).strip().replace('Z', '+00:00'))
-                  stale = 'yes' if (datetime.now(timezone.utc) - stamp).total_seconds() > 3 * 3600 else 'no'
+                  return Path(path).read_text(encoding='utf-8')
+              except OSError:
+                  return fallback
+
+          state = read('.ai/STATE.md')
+          tasks_text = read('.ai/TASKS.md')
+          log_text = read('.ai/LOG.md')
+          errors_text = read('.ai/ERRORS.md')
+          questions = read('.ai/OWNER_QUESTIONS.md')
+          targets = read('docs/product/TARGETS.md')
+
+          heartbeat_match = re.search(r'Heartbeat \(UTC\):\*\*\s*([^\n]+)', state)
+          active_match = re.search(r'Active agent:\*\*\s*([^\n]+)', state)
+          current_match = re.search(r'Current task:\*\*\s*([^\n]+)', state)
+          heartbeat_text = heartbeat_match.group(1).strip() if heartbeat_match else 'unknown'
+          active_agent = active_match.group(1).strip() if active_match else 'unknown'
+          current_task = current_match.group(1).strip() if current_match else 'unknown'
+          active_task = bool(re.search(r'\b(in progress|in_progress|doing)\b', current_task, re.I))
+          stale = 'unknown'
+          heartbeat_age = 'unknown'
+          if not active_task:
+              stale = 'no active task lock'
+          elif heartbeat_match:
+              try:
+                  stamp = datetime.fromisoformat(heartbeat_text.replace('Z', '+00:00'))
+                  if stamp.tzinfo is None:
+                      stamp = stamp.replace(tzinfo=timezone.utc)
+                  age_seconds = max(0, (now - stamp).total_seconds())
+                  heartbeat_age = f'{int(age_seconds // 60)} minutes'
+                  stale = 'yes' if age_seconds >= 600 else 'no'
               except ValueError:
                   stale = 'invalid timestamp'
-          open_questions = [line for line in questions.splitlines() if line.startswith('- ') and 'No open' not in line]
+
+          task_rows = re.findall(r'^\|\s*(T-\d+)\s*\|.*?\|\s*(todo|in_progress|done|blocked)\s*\|', tasks_text, re.M)
+          task_counts = {status: sum(row_status == status for _, row_status in task_rows)
+                         for status in ('todo', 'in_progress', 'done', 'blocked')}
+          pending_questions = len(re.findall(r'^## Pending\b', questions, re.M))
+
+          target_status = 'not recorded'
+          sections = re.split(r'(?m)(?=^## )', questions)
+          target_section = next((section for section in sections if 'T-031' in section and 'TARGETS' in section.upper()), '')
+          if target_section:
+              answer = re.search(r'(?im)^(?:उत्तर|Answer):\s*\*\*(Yes|No)\*\*', target_section)
+              if answer:
+                  target_status = 'approved by owner Yes' if answer.group(1).lower() == 'yes' else 'rejected by owner No'
+              elif target_section.startswith('## Pending'):
+                  target_status = 'proposed — pending owner Yes/No'
+              elif target_section.startswith('## Resolved'):
+                  target_status = 'resolved; answer not parsed'
+
+          def table_row(label):
+              for line in targets.splitlines():
+                  if line.startswith('| ' + label + ' |'):
+                      return [cell.strip() for cell in line.strip().strip('|').split('|')]
+              return []
+
+          def target_cell(label):
+              row = table_row(label)
+              if len(row) <= 3:
+                  return 'See docs/product/TARGETS.md'
+              value = re.sub(r'\*\*', '', row[3]).strip()
+              return value.split('. ', 1)[0].rstrip('.')
+
+          try:
+              source = read('functions/_lib/core.ts')
+              category_block = re.search(r'export const CATEGORIES = \[(.*?)\] as const;', source, re.S)
+              categories = re.findall(r"'([^']+)'", category_block.group(1)) if category_block else []
+              general_categories = [item for item in categories if item != 'adult-fashion-swimwear']
+              category_reading = str(len(general_categories)) if category_block else 'not measured (source parse unavailable)'
+          except Exception:
+              category_reading = 'not measured (source parse unavailable)'
+
+          try:
+              gallery_request = Request(
+                  'https://kamna.pages.dev/api/gallery?limit=1',
+                  headers={
+                      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                      'Accept': 'application/json',
+                      'Referer': 'https://kamna.pages.dev/',
+                  },
+              )
+              with urlopen(gallery_request, timeout=20) as response:
+                  gallery_data = json.loads(response.read().decode('utf-8'))
+              count = gallery_data.get('total')
+              approved_count = str(count) if isinstance(count, int) and count >= 0 else 'not measured (invalid public API response)'
+          except (HTTPError, URLError, TimeoutError, ValueError, OSError):
+              approved_count = 'not measured (public gallery API unavailable)'
+
+          def ci_green_rate():
+              if not repo or not token:
+                  return 'not measured (Actions API credentials unavailable)'
+              names = {'AI relay checks', 'Security analysis', 'Cloudflare Pages deploy'}
+              all_runs = []
+              total_count = 0
+              max_pages = 20
+              try:
+                  for page in range(1, max_pages + 1):
+                      query = urlencode({'per_page': '100', 'page': str(page)})
+                      request = Request(
+                          f'https://api.github.com/repos/{repo}/actions/runs?{query}',
+                          headers={
+                              'Authorization': 'Bearer ' + token,
+                              'Accept': 'application/vnd.github+json',
+                              'X-GitHub-Api-Version': '2022-11-28',
+                              'User-Agent': 'Kamna-Weekly-Scorecard',
+                          },
+                      )
+                      with urlopen(request, timeout=20) as response:
+                          payload = json.loads(response.read().decode('utf-8'))
+                      total_count = payload.get('total_count', 0)
+                      page_runs = payload.get('workflow_runs', [])
+                      all_runs.extend(page_runs)
+                      if len(all_runs) >= total_count or len(page_runs) < 100:
+                          break
+                  if total_count > len(all_runs):
+                      return f'not measured (cannot scan all {total_count} runs within {max_pages * 100}-run pagination cap)'
+                  relevant = [run for run in all_runs
+                              if run.get('name') in names and run.get('head_branch') == 'main']
+                  completed = []
+                  for run in relevant:
+                      if run.get('status') != 'completed':
+                          continue
+                      # The workflow-run API response currently has no usable completed_at;
+                      # updated_at is the completion-time proxy for completed runs.
+                      updated = run.get('updated_at')
+                      if not updated:
+                          continue
+                      try:
+                          completion_proxy = datetime.fromisoformat(updated.replace('Z', '+00:00'))
+                      except ValueError:
+                          continue
+                      if since <= completion_proxy <= now:
+                          completed.append(run)
+                  skipped = sum(run.get('conclusion') == 'skipped' for run in completed)
+                  cancelled = sum(run.get('conclusion') == 'cancelled' for run in completed)
+                  scored = [run for run in completed
+                            if run.get('conclusion') not in {'skipped', 'cancelled'}]
+                  if not scored:
+                      return f'not measured (no scored completed required runs); skipped={skipped}, cancelled={cancelled}'
+                  green = sum(run.get('conclusion') == 'success' for run in scored)
+                  rate = 100 * green / len(scored)
+                  return f'{green}/{len(scored)} successful scored runs ({rate:.1f}%; observed, no target set); completion-time proxy=updated_at; scanned={len(all_runs)} runs; skipped={skipped}, cancelled={cancelled}'
+              except (HTTPError, URLError, TimeoutError, ValueError, OSError):
+                  return 'not measured (Actions API unavailable)'
+
+          ci_rate = ci_green_rate()
+          takeover_lines = []
+          for line in log_text.splitlines():
+              stamp_match = re.match(r'^- (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)', line)
+              explicit_takeover = bool(re.search(r'\b(takeover|take over|took over)\b', line, re.I))
+              stale_claim_after_heartbeat = (
+                  bool(re.search(r'\bclaimed\s+T-\d+\b', line, re.I))
+                  and bool(re.search(r'\b(?:prior|previous) heartbeat\b', line, re.I))
+                  and bool(re.search(r'\b(?:exceeded|stale|older)\b', line, re.I))
+                  and bool(re.search(r'\b10[- ]minute\b', line, re.I))
+              )
+              if (not stamp_match
+                  or not (explicit_takeover or stale_claim_after_heartbeat)
+                  or not re.search(r'\b(stale|heartbeat|10[- ]minute|single-writer)\b', line, re.I)):
+                  continue
+              try:
+                  event_time = datetime.fromisoformat(stamp_match.group(1).replace('Z', '+00:00'))
+                  if since <= event_time <= now:
+                      takeover_lines.append(line)
+              except ValueError:
+                  continue
+          takeover_reading = f'{len(takeover_lines)} explicitly documented in the seven-day window; count only, not a target'
+
+          error_entries = [line for line in errors_text.splitlines()
+                           if re.match(r'^\|\s*\d{4}-\d{2}-\d{2}', line)]
+          resume_reading = 'not measured — no consistent resume-start and first-action timestamps'
+          independent_reading = 'not measured — complete task/reviewer/account linkage is not yet consistent'
+          repeated_error_reading = 'not measured — error causes are free text without a normalized type taxonomy'
+          tasks_session_reading = 'not measured — the Session trailer is an account/tool label, not a unique session ID'
+          download_reading = 'not measured — requires an approved work and the T-020 anonymous E2E procedure'
+          search_reading = 'not measured — T-016 requires approved works and a repeatable timing run'
+          mobile_reading = 'not measured — T-018 real-device/Lighthouse baseline is pending'
+          accessibility_reading = 'not measured — T-018 audit is pending'
+          recent_errors = len(error_entries)
           flags = []
-          if stale != 'no': flags.append(f'stale or invalid heartbeat: {stale}')
-          if counts['done'] and len(reviews) <= counts['done']: flags.append('a done task may lack an independent review')
-          if re.search(r'(sk_live_|AIza|SUPABASE_SERVICE_ROLE_KEY\s*=|CLOUDFLARE_API_TOKEN\s*=)', state + tasks + errors): flags.append('possible secret pattern in relay records')
-          if open_questions: flags.append('owner questions are open')
+          if stale == 'yes': flags.append('active task heartbeat reaches or exceeds the 10-minute rule')
+          if target_status.startswith('proposed'): flags.append('TARGETS approval is pending')
+          if pending_questions: flags.append('owner questions are open')
+          if approved_count == '0': flags.append('no approved general-audience works are visible')
+          if 'not measured' in ci_rate: flags.append('CI/workflow green rate could not be measured')
+
           out = [
-              '# AI relay dashboard', '',
-              f'Generated (UTC): {datetime.now(timezone.utc).isoformat()}',
-              f'Active agent: {active.group(1).strip() if active else "unknown"}',
-              f'Heartbeat: {heartbeat.group(1).strip() if heartbeat else "unknown"}',
-              f'Stale lock (>3h): {stale}', '',
-              '## Tasks',
-              f'- todo: {counts["todo"]}', f'- doing: {counts["doing"]}', f'- done: {counts["done"]}', f'- blocked: {counts["blocked"]}', '',
-              f'Pending review files: {len(reviews)}',
-              f'Open owner-question lines: {len(open_questions)}',
-              f'Error log entries: {max(0, len(errors.splitlines()) - 6)}', '',
+              '# Kamna weekly scorecard', '',
+              f'Generated (UTC): {now.isoformat()}',
+              f'Window (UTC): {since.isoformat()} through {now.isoformat()} (rolling seven days)',
+              f'TARGETS status: {target_status}',
+              'Targets in this report are observations or proposals only; this Action never approves or changes a target.',
+              '18+ collection and monetization: OFF.', '',
+              '## Product readings', '',
+              '| Metric | This-week reading | Proposed target / gate |',
+              '|---|---|---|',
+              f'| Approved general-audience works | {approved_count} (public approved-gallery total) | {target_cell("Initial approved works")} |',
+              f'| General-audience categories | {category_reading} (adult category excluded) | {target_cell("General-audience category count")} |',
+              f'| Anonymous download E2E | {download_reading} | {target_cell("Anonymous download E2E")} |',
+              f'| Search response time | {search_reading} | {target_cell("Search response time")} |',
+              f'| Mobile performance | {mobile_reading} | {target_cell("Mobile performance")} |',
+              f'| Accessibility | {accessibility_reading} | {target_cell("Accessibility")} |', '',
+              '## Earnings gates', '',
+              'No earning feature is enabled; each step still needs current provider-policy checks and a separate owner Yes.',
+              '| Step | Weekly status |',
+              '|---|---|',
+              '| Ads | OFF; assumptions and gates are in docs/product/TARGETS.md |',
+              '| Affiliate links | OFF; assumptions and gates are in docs/product/TARGETS.md |',
+              '| Print/product links | OFF; assumptions and gates are in docs/product/TARGETS.md |', '',
+              '## Relay-system readings', '',
+              '| Metric | This-week reading |',
+              '|---|---|',
+              f'| New-agent resume time | {resume_reading} |',
+              f'| Truly independent review share | {independent_reading} |',
+              f'| CI green rate | {ci_rate} |',
+              f'| Repeated error types | {repeated_error_reading} |',
+              f'| Stale-lock takeovers | {takeover_reading} |',
+              f'| Tasks per session | {tasks_session_reading} |', '',
+              'Target definitions, baselines, measure-by dates, and gate details: docs/product/TARGETS.md.',
+              'This Action reports observations only; it never edits or approves a target.', '',
+              '## Relay health',
+              f'- Active agent: {active_agent}',
+              f'- Current task: {current_task}',
+              f'- Heartbeat: {heartbeat_text} (age: {heartbeat_age})',
+              f'- Stale lock (>=10m): {stale}',
+              f'- Tasks: todo {task_counts["todo"]}; in progress {task_counts["in_progress"]}; done {task_counts["done"]}; blocked {task_counts["blocked"]}',
+              f'- Pending owner questions: {pending_questions}',
+              f'- Dated error-table entries recorded: {recent_errors} (not equivalent to repeated error types)', '',
               '## Flags',
           ]
-          out += [f'- {flag}' for flag in flags] or ['- none detected by this lightweight check']
-          Path('.ai/DASHBOARD.md').write_text('\n'.join(out) + '\n')
+          out += [f'- {flag}' for flag in flags] or ['- none detected by this lightweight report']
+          Path('.ai/DASHBOARD.md').write_text('\n'.join(out) + '\n', encoding='utf-8')
           PY
       - name: Commit dashboard if changed
         shell: bash
@@ -73,5 +294,7 @@ jobs:
           git pull --rebase origin main
           git add .ai/DASHBOARD.md
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m '[github-actions] refresh relay dashboard'
-          git push
+          git commit -m '[github-actions] refresh weekly scorecard [skip ci]' \
+            -m 'Agent: github-actions[bot]' \
+            -m 'Session: AI relay dashboard'
+          git push origin HEAD:main
