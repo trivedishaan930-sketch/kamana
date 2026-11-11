@@ -3,7 +3,7 @@
 | agent_id | tool | strengths | status | how connected | notes |
 |---|---|---|---|---|---|
 | manus-1 | Manus | full-stack coordination, relay setup | active | repository workflow | Current owner; only owner may activate new tools. |
-| manus-2 | Manus (owner-connected second account) | general implementation and handoff continuation | active (T-021) | owner-approved repository workflow | Owner explicitly asked this second account to continue; no new external tool or provider credential was enabled. |
+| manus-2 | Manus (owner-connected second account) | general implementation and handoff continuation | active (T-032) | owner-approved repository workflow | Owner explicitly asked this second account to continue; no new external tool or provider credential was enabled. |
 | manus-3 | Manus | planned review and QA | planned | repository workflow | Empty planned slot. |
 | manus-4 | Manus | planned security review | planned | repository workflow | Empty planned slot. |
 | manus-5 | Manus | planned research and policy | planned | repository workflow | Empty planned slot. |

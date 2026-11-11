@@ -1,28 +1,40 @@
 # Kamna roadmap
 
-Status date: 2026-11-10. **Owner approved this roadmap and the additions below on 2026-11-10.** `OWNER_BRIEF.md` remains the source for product goals. This approval does not bypass per-task safety, rights, security, or provider gates. Do not enable 18+ or monetization. Storage: separate directive.
+Status date: 2026-11-11. The owner approved the original roadmap on 2026-11-10 and explicitly reordered the upcoming work on 2026-11-11. This visual-priority override does not bypass per-task safety, rights, security, or provider gates. Do not enable 18+ or monetization. Storage: separate directive.
+
+## Top priority — Visual Product Sprint (owner-ordered 2026-11-11)
+
+Build the visible experience before measuring it and without waiting for approved works. T-021 is complete: Proposal A — Editorial Index won with independent rubric totals 31/35 and 32/35, compared with Proposal B at 25/35 and 28/35. See `docs/product/WIREFRAMES.md` and `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. The next task is T-032; then build, in order:
+
+1. **Home page:** compact header; hero with search; all nine general categories always visible as attractive tiles even when empty; featured and latest sections; a designed empty state with no “backend”/“Supabase” wording. Loading placeholders may be skeleton cards only. Never show invented or pretend artwork.
+2. **Gallery:** true responsive masonry with lazy loading and smooth phone behavior; preserve useful reading order, visible provenance, and approved-only content.
+3. **Artwork, creator, and download:** polish artwork details, creator pages, and anonymous free downloads without obscuring AI labels, IDs, or rights terms.
+4. **Sign-in and upload:** compact flow with the form visible first and a clear sign-in/create-account prompt for signed-out visitors; preserve account, rights, privacy, and human-review rules.
+5. **Visual polish:** typography, spacing, color, motion, and accessibility in the Gallery Ash style; use keyboard, screen-reader, contrast, touch-target, and reduced-motion checks.
+
+Only after the visible UI exists, measure performance, accessibility, mobile usability, search behavior, and Core Web Vitals. Do not invent numeric targets. Keep the empty gallery honest: decorative category icons/patterns are acceptable when unmistakably UI, but fake artwork, stock art, auto-approval, and lowered moderation are not. Deploy only through the existing GitHub Actions workflow after its checks pass. Keep 18+ and monetization off.
 
 ## Owner's measurable goals and baselines
 
 Kamna should become a premium, Pinterest-style discovery site for AI-generated art with a true masonry grid, useful categories, fast search, and smooth mobile browsing. Anyone may view and download approved general-audience work without signing in; creators need an account, clear rights, and human review before publication. Owner earnings precede any later creator benefits.
 
-Baseline recorded from the live page and repository on 2026-11-10, before T-015: nine general-audience categories; query search and a separate tag filter; the API searches title, description, tags, and creator display name; equal-column responsive CSS grid with fixed-ratio tiles, not masonry; no approved works visible. At baseline the title was `Kamna — Art beyond the ordinary` and the description incorrectly called Kamna an 18+ community. T-015 completed in commit `af4bb84`; the deployed title is now `Kamna — AI Art Discovery` and the description describes AI-generated art and free downloads without 18+ wording. Search speed/relevance, real-device mobile behavior, Core Web Vitals, traffic, and creator demand are not yet measured. The owner has additionally reported mobile problems: the tall header consumes screen space, the sign-in hero pushes the form below the fold, the upload Title label touches the preceding image-upload box, public copy exposes internal provider terms, and signed-out users see an active-looking upload form. Reproduce these in a mobile viewport before fixing; do not invent performance targets.
+Baseline recorded from the live page and repository on 2026-11-10, before T-015: nine general-audience categories; query search and a separate tag filter; the API searches title, description, tags, and creator display name; equal-column responsive CSS grid with fixed-ratio tiles, not masonry; no approved works visible. At baseline the title was `Kamna — Art beyond the ordinary` and the description incorrectly called Kamna an 18+ community. T-015 completed in commit `af4bb84`; the deployed title is now `Kamna — AI Art Discovery` and the description describes AI-generated art and free downloads without 18+ wording. Search speed/relevance, real-device mobile behavior, Core Web Vitals, traffic, and creator demand are not yet measured. The owner has additionally reported mobile problems: the tall header consumes screen space, the sign-in hero pushes the form below the fold, the upload Title label touches the preceding image-upload box, public copy exposes internal provider terms, and signed-out users see an active-looking upload form. These reported visual defects are included in the sprint above; reproduce them in a mobile viewport before fixing. The lack of approved artworks and baselines is not a UI blocker.
 
-## First implementation task (T-015): metadata correction — complete
+## Historical first implementation task (T-015) — complete
 
-T-015 was the first code change and is complete in commit `af4bb84`: the document title and description now describe general-audience AI-art discovery, not an 18+ community. The deployed HTML was verified at HTTP 200; the 18+ feature remains disabled. T-016 (search baseline) is next, only after approved works exist; do not invent numeric targets.
+T-015 was the first code change and is complete in commit `af4bb84`: the document title and description now describe general-audience AI-art discovery, not an 18+ community. The deployed HTML was verified at HTTP 200; the 18+ feature remains disabled. This is historical completion; the owner's 2026-11-11 decision supersedes it as the next work. T-016 search measurement waits until the visual UI exists and approved works are available; do not invent numeric targets.
 
-## Phase 0 — governance and measured baseline
+## Later Phase 0 — governance and measured baseline
 
-The owner confirmed Yes to a 10-minute single-writer/stale-lock threshold on 2026-11-10; `AGENTS.md` is the sole rule, and `.ai/DECISIONS.md` records the decision. The two 2026-11-09 reviews' reviewer agent/account remain unknown because no primary evidence identifies them. The owner-requested protected-path and release-safety tasks are in the backlog. Record measured search/mobile/accessibility/performance baselines before setting any numeric budget. Keep 18+ and monetization off.
+The owner confirmed Yes to a 10-minute single-writer/stale-lock threshold on 2026-11-10; `AGENTS.md` is the sole rule, and `.ai/DECISIONS.md` records the decision. The two 2026-11-09 reviews' reviewer agent/account remain unknown because no primary evidence identifies them. The owner-requested protected-path and release-safety tasks are in the backlog. Record measured search/mobile/accessibility/performance baselines after the visual sprint and before setting any numeric budget. Keep 18+ and monetization off.
 
-## Phase 1 — seed the empty gallery without lowering moderation
+## Later Phase 1 — seed the empty gallery without lowering moderation
 
-Plan a path to the owner's requested first **50–100 approved works**, not a requirement to accept any specific submission. Sources: (a) AI works created and rights-cleared by the owner; (b) invited creators who submit voluntarily. Every submission follows the same upload rules, rights confirmation, human quality/safety review, and approval process as later submissions. Do not lower moderation thresholds or auto-approve to reach the target. Record source, creator, AI disclosure, provenance, and permission. A clearly written platform license must cover only the intended hosting, public display, attribution, and free-download scope; any commercial print/product license must be a separate explicit creator opt-in with clear terms. If eligible works are unavailable, keep the gallery honestly empty rather than publish uncleared or unsafe work. No outreach or commercial reuse of creator work is authorized by this planning task alone.
+Plan a path to the owner's requested first **50–100 approved works**, not a requirement to accept any specific submission. Sources: (a) AI works created and rights-cleared by the owner; (b) invited creators who submit voluntarily. Every submission follows the same upload rules, rights confirmation, human quality/safety review, and approval process as later submissions. Do not lower moderation thresholds or auto-approve to reach the target. Record source, creator, AI disclosure, provenance, and permission. A clearly written platform license must cover only the intended hosting, public display, attribution, and free-download scope; any commercial print/product license must be a separate explicit creator opt-in with clear terms. If eligible works are unavailable, keep the gallery honestly empty rather than publish uncleared or unsafe work. The visual sprint must not wait for seed content. No outreach or commercial reuse of creator work is authorized by this planning task alone.
 
-## Phase 2 — core discovery and mobile UX
+## Later Phase 2 — discovery validation and mobile follow-up
 
-Replace the uniform grid with true masonry while preserving the nine categories and approved-only behavior. Measure search behavior before proposing a latency budget. Recheck the owner's reported mobile problems and fix: compact the tall header; bring sign-in fields into the first viewport where feasible; add clear vertical space between upload box and Title label; remove public-facing provider/internal terms such as “Supabase” and “backend”; and show signed-out visitors a clear sign-in/create-account prompt instead of an enabled-looking upload form. Preserve accessibility, error recovery, visible rights/safety information, and clear state messaging. Acceptance requires real phone/viewport checks; set numerical speed/bundle/accessibility targets only after baselines.
+The true masonry and compact mobile UI are built earlier in the visual sprint. After those screens exist, measure search behavior and recheck the owner's reported mobile issues: compact the tall header; bring sign-in fields into the first viewport where feasible; add clear vertical space between upload box and Title label; remove public-facing provider/internal terms such as “Supabase” and “backend”; and show signed-out visitors a clear sign-in/create-account prompt instead of an enabled-looking upload form. Preserve accessibility, error recovery, visible rights/safety information, and clear state messaging. Acceptance requires real phone/viewport checks; set numerical speed/bundle/accessibility targets only after baselines.
 
 ## Phase 3 — moderation, trust and safety
 
@@ -50,12 +62,9 @@ Continue weekly security review, dependency updates, issue review, Scout report,
 
 ## Owner summary
 
-आपने roadmap मंज़ूर कर दिया है।
-पहला code काम T-015 title/meta सुधारना है।
-Gallery में पहले 50–100 सही अनुमति वाले काम जुटाने की योजना बनेगी।
-हर artwork पर वही human moderation लागू रहेगी।
-Mobile की बताई समस्याएँ ठीक की जाएँगी।
-Moderator reason UI और API दोनों में ज़रूरी होगा।
-पहले speed और accessibility की baseline मापेंगे।
-Creator की commercial permission अलग से चाहिए।
-18+ और कमाई अभी बंद है।
+पहले वेबसाइट का दिखने वाला हिस्सा बेहतर बनेगा; माप बाद में होगा।
+दो design प्रस्ताव बनेंगे और दो अलग agents उन्हें score करेंगे।
+फिर home, masonry gallery, artwork/creator pages, sign-in/upload और accessibility सुधरेंगे।
+हर category खाली होने पर भी दिखेगी।
+गलत या नकली artwork नहीं दिखाया जाएगा।
+18+ और कमाई वाले फीचर बंद रहेंगे।

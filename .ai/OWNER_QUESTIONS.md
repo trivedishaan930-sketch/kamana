@@ -1,12 +1,18 @@
+# Owner questions
 
+## Deferred — T-031 TARGETS.md approval (first asked 2026-11-10)
 
-## Pending — T-031 TARGETS.md approval (2026-11-10)
+The proposed product milestones/scorecard still need the original owner Yes/No decision. The owner’s 2026-11-11 visual-priority instruction changes work order but does not approve any numeric target. No target is active. Keep this question deferred until the single active screenshot question below is answered; do not infer approval.
 
-**समस्या:** Kamna के product milestones और weekly relay scorecard के लिए target proposal चाहिए; मापे बिना कोई performance या traffic number तय नहीं किया गया है।
+## Pending — Optional Visual Product Sprint reference screenshots (T-021; 2026-11-11)
 
-**मैंने क्या किया:** `docs/product/TARGETS.md` में current baselines, proposed measure-by dates, monetization gates और relay metrics रखे हैं। पहले 50 approved works वाला आंकड़ा केवल assumption है; अभी active target नहीं। Monetization और 18+ बंद रहेंगे।
+**समस्या:** मैं Kamna का अपना Gallery Ash design बना रहा हूँ। आपकी पसंद के उदाहरण मिलने पर दो design proposals और बेहतर match कर पाएँगे; screenshots भेजना जरूरी नहीं है।
+
+**मैंने क्या किया:** पहले ही categories, masonry, home, artwork और account-flow की जरूरी बातें तय कर ली हैं। अभी application code नहीं बदला है; आपके screenshot न भेजने पर भी मैं Gallery Ash style में आगे बढ़ूँगा।
 
 **आपको क्या करना है:**
-1. GitHub में `docs/product/TARGETS.md` खोलकर प्रस्ताव पढ़ें; फिर बताएं कि क्या आप इसे approve करते हैं?
+1. अगर screenshots भेजना चाहें, अपनी पसंद की वेबसाइटें फोन या browser में खोलें और 3–5 screenshots लें: home/search, category tiles, masonry gallery, artwork detail या mobile layout में से जो आपको पसंद हो। निजी जानकारी दिखे तो छिपा दें।
+2. वे 3–5 screenshots इसी chat में attach करें।
+3. Screenshots नहीं भेजने हों तो केवल **No** लिखें; भेजने हों तो **Yes** लिखकर images attach करें।
 
-**उत्तर:** कृपया केवल **Yes** या **No** लिखें। Screenshot की जरूरत नहीं है।
+**उत्तर:** **Yes** + 3–5 screenshots, या **No**।
