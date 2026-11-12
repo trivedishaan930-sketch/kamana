@@ -4,7 +4,7 @@ Kamna is a premium discovery site for AI-generated art. Approved works receive a
 
 **Stack:** Vite/React/TypeScript frontend; Cloudflare Pages Functions; Supabase Auth/Postgres/private Storage; SQL migrations under `supabase/migrations/`.
 
-**Current task:** T-031 is documentation/workflow only: propose product and relay-system targets, configure the existing weekly dashboard Action, and leave target approval pending in `.ai/OWNER_QUESTIONS.md`. T-015 is complete and live. T-016 (search baseline) remains blocked until approved works exist. The 18+ collection stays closed; storage remains a separate directive.
+**Current task:** T-032 is in progress: implement the first owner-ordered Visual Product Sprint step, the home page, using selected Proposal A — Editorial Index. The code edit is preserved in the current task worktree stash while that branch is fast-forwarded to the latest `main`; no code commit or deploy has occurred yet. T-021 is complete. T-031 product-target approval remains separately pending and does not block visual work. T-015 is complete and live. Keep 18+ closed; storage remains a separate directive.
 
 **Where things live:** app in `src/`; APIs in `functions/`; migrations in `supabase/migrations/`; routes in `public/manus-routes.json`; product docs in `docs/product/`; relay records in `.ai/`.
 
