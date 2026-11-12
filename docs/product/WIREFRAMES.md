@@ -1,6 +1,6 @@
 # Visual Product Sprint — proposals and wireframes
 
-**Status (2026-11-11):** T-021 is complete. Proposal A — Editorial Index is selected for T-032 home-page implementation. The two independent reviews are recorded in `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. No application code has been changed yet.
+**Status (2026-11-12):** T-021 is complete. Proposal A — Editorial Index was implemented for the T-032 home page and locally verified; the two design reviews are recorded in `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`, and the implementation review is in `.ai/REVIEWS/2026-11-12-t032-implementation-review.md`.
 
 **Proposal time-box:** one compact desktop/mobile wireframe and one trade-off list per option; no high-fidelity mockup, external artwork, or asset copying. See `research/visual-reference-notes-2026-11-11.md` for two visual references and applicable empty-state principles.
 
@@ -97,5 +97,5 @@ Mobile navigation stays compact. Loading uses neutral skeletons; no results/firs
 
 दो प्रस्तावों को दो अलग agents ने score किया।
 Proposal A को 31.5/35 औसत मिला; Proposal B को 26.5/35।
-इसलिए A चुना गया; app code अभी नहीं बदला।
+इसलिए A चुना गया; T-032 में home page implement और locally verify हो चुका है।
 हर category दिखेगी, artwork केवल approved होगा।

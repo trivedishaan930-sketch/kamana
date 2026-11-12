@@ -1,18 +1,20 @@
 # Kamna roadmap
 
-Status date: 2026-11-11. The owner approved the original roadmap on 2026-11-10 and explicitly reordered the upcoming work on 2026-11-11. This visual-priority override does not bypass per-task safety, rights, security, or provider gates. Do not enable 18+ or monetization. Storage: separate directive.
+Status date: 2026-11-12. The owner approved the original roadmap on 2026-11-10 and explicitly reordered the upcoming work on 2026-11-11. This visual-priority override does not bypass per-task safety, rights, security, or provider gates. Do not enable 18+ or monetization. Storage: separate directive.
 
 ## Top priority — Visual Product Sprint (owner-ordered 2026-11-11)
 
-Build the visible experience before measuring it and without waiting for approved works. T-021 is complete: Proposal A — Editorial Index won with independent rubric totals 31/35 and 32/35, compared with Proposal B at 25/35 and 28/35. See `docs/product/WIREFRAMES.md` and `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. The next task is T-032; then build, in order:
+Build the visible experience before measuring it and without waiting for approved works. T-021 is complete: Proposal A — Editorial Index won with independent rubric totals 31/35 and 32/35, compared with Proposal B at 25/35 and 28/35. See `docs/product/WIREFRAMES.md` and `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. T-032 is complete; T-017 is next in order:
 
-1. **Home page:** compact header; hero with search; all nine general categories always visible as attractive tiles even when empty; featured and latest sections; a designed empty state with no “backend”/“Supabase” wording. Loading placeholders may be skeleton cards only. Never show invented or pretend artwork.
-2. **Gallery:** true responsive masonry with lazy loading and smooth phone behavior; preserve useful reading order, visible provenance, and approved-only content.
+1. **Home page — complete (T-032, 2026-11-12):** compact header; hero with search; all nine general categories always visible as attractive tiles even when empty; featured and latest sections; a designed empty state with no “backend”/“Supabase” wording. Loading placeholders may be skeleton cards only. Never show invented or pretend artwork.
+2. **Gallery — next (T-017):** true responsive masonry with lazy loading and smooth phone behavior; preserve useful reading order, visible provenance, and approved-only content.
 3. **Artwork, creator, and download:** polish artwork details, creator pages, and anonymous free downloads without obscuring AI labels, IDs, or rights terms.
 4. **Sign-in and upload:** compact flow with the form visible first and a clear sign-in/create-account prompt for signed-out visitors; preserve account, rights, privacy, and human-review rules.
 5. **Visual polish:** typography, spacing, color, motion, and accessibility in the Gallery Ash style; use keyboard, screen-reader, contrast, touch-target, and reduced-motion checks.
 
 Only after the visible UI exists, measure performance, accessibility, mobile usability, search behavior, and Core Web Vitals. Do not invent numeric targets. Keep the empty gallery honest: decorative category icons/patterns are acceptable when unmistakably UI, but fake artwork, stock art, auto-approval, and lowered moderation are not. Deploy only through the existing GitHub Actions workflow after its checks pass. Keep 18+ and monetization off.
+
+T-032 verification used the repository's typecheck/build and local Wrangler Pages preview; the home and route-manifest requests returned HTTP 200, and desktop/mobile viewport checks confirmed category visibility and compact navigation. No local provider configuration was available, so real artwork, live empty-data behavior, and provider/network skeleton timing remain unverified. The build has a non-blocking Vite advisory for a main JavaScript chunk above 500 kB; no budget is active.
 
 ## Owner's measurable goals and baselines
 

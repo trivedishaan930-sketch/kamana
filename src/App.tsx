@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Search, ShieldCheck, UploadCloud } from 'lucide-react';
+import { ArrowRight, CalendarDays, Flower2, Landmark, Leaf, Menu, Palette, Pencil, Search, Shapes, ShieldCheck, Shirt, Sparkles, UploadCloud, UserRound, X } from 'lucide-react';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { api, ApiError, type Artwork, type Report } from './lib/api';
 import { getPublicProfile, getSession, supabase, supabaseConfigured, type Session } from './lib/supabase';
@@ -8,6 +8,17 @@ import { getPublicProfile, getSession, supabase, supabaseConfigured, type Sessio
 const rules = 'AI-generated artwork only. Nudity, sex acts, pornography, minors or ambiguous-age subjects, nonconsensual sexual imagery, real-person sexual deepfakes, unlawful material, and work without publishing rights are prohibited.';
 const categories = [{id:'general-illustration',label:'General Illustration'},{id:'festival-celebration',label:'Festival & Celebration'},{id:'nature-wildlife',label:'Nature & Wildlife'},{id:'fantasy-mythology',label:'Fantasy & Mythology'},{id:'portrait-character',label:'Portrait & Character'},{id:'fashion-editorial',label:'Fashion & Editorial'},{id:'architecture-places',label:'Architecture & Places'},{id:'abstract-experimental',label:'Abstract & Experimental'},{id:'indian-folk-traditional',label:'Indian Folk & Traditional'}];
 const indianStyles = [{id:'madhubani',label:'Madhubani / Mithila'},{id:'warli',label:'Warli'},{id:'gond',label:'Gond'},{id:'odisha-pattachitra',label:'Odisha Pattachitra'},{id:'rajasthani-phad',label:'Rajasthani Phad'},{id:'kalamkari-srikalahasti',label:'Kalamkari — Srikalahasti (freehand)'},{id:'kalamkari-machilipatnam-pedana',label:'Kalamkari — Machilipatnam / Pedana (block print)'},{id:'cheriyal',label:'Cheriyal'},{id:'thanjavur-tanjore',label:'Thanjavur / Tanjore'}];
+const categoryIcons = {
+  'general-illustration': Pencil,
+  'festival-celebration': CalendarDays,
+  'nature-wildlife': Leaf,
+  'fantasy-mythology': Sparkles,
+  'portrait-character': UserRound,
+  'fashion-editorial': Shirt,
+  'architecture-places': Landmark,
+  'abstract-experimental': Shapes,
+  'indian-folk-traditional': Flower2,
+} as const;
 const categoryLabels = Object.fromEntries(categories.map(item=>[item.id,item.label]));
 const styleLabels = Object.fromEntries(indianStyles.map(item=>[item.id,item.label]));
 const categoryLabel = (id:string) => categoryLabels[id] || (id==='adult-fashion-swimwear'?'18+ Fashion & Swimwear':id);
@@ -38,6 +49,8 @@ function Rules() {
 }
 
 function Header({ session, onAuth }: { session: Session | null; onAuth: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
   return <>
     <div className="announcement">Kamna public beta <b>·</b> Non-explicit AI artwork only</div>
     <header className="topbar">
@@ -46,7 +59,16 @@ function Header({ session, onAuth }: { session: Session | null; onAuth: () => vo
       <div className="nav-right">
         {session ? <><Link to="/account">My account</Link><button className="button-quiet" onClick={() => { void supabase?.auth.signOut(); }}>Sign out</button></> : <button className="button-quiet" onClick={onAuth}>Sign in</button>}
         <Link className="upload-nav" to="/upload">Submit artwork <ArrowRight size={13}/></Link>
+        <button id="mobile-menu-button" className="mobile-menu-button" type="button" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="mobile-nav" onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={18} aria-hidden="true"/> : <Menu size={18} aria-hidden="true"/>}</button>
       </div>
+      <nav id="mobile-nav" className="mobile-nav" aria-label="Mobile navigation" hidden={!menuOpen} onKeyDown={event => { if (event.key === 'Escape') { closeMenu(); document.getElementById('mobile-menu-button')?.focus(); } }}>
+        <Link to="/" onClick={closeMenu}>Explore</Link>
+        <Link to="/18-plus" onClick={closeMenu}>18+ Fashion & Swimwear</Link>
+        <Link to="/rules" onClick={closeMenu}>Community rules</Link>
+        <Link to="/report" onClick={closeMenu}>Report / takedown</Link>
+        {session ? <><Link to="/account" onClick={closeMenu}>My account</Link><button className="mobile-nav-action" type="button" onClick={() => { void supabase?.auth.signOut(); closeMenu(); }}>Sign out</button></> : <button className="mobile-nav-action" type="button" onClick={() => { closeMenu(); onAuth(); }}>Sign in</button>}
+        <Link to="/upload" onClick={closeMenu}>Submit artwork</Link>
+      </nav>
     </header>
   </>;
 }
@@ -56,7 +78,7 @@ function Footer() {
 }
 
 function Setup() {
-  return <div className="notice-banner" role="status"><strong>Account setup required.</strong> Supabase connection settings are not configured, so sign-in and uploads are currently unavailable. No account has been created. Please try again after the site administrator completes setup.</div>;
+  return <div className="notice-banner" role="status"><strong>Account services are temporarily unavailable.</strong> Please try again later. No account has been created.</div>;
 }
 
 function Page({ title, children }: { title: string; children: ReactNode }) {
@@ -191,7 +213,7 @@ function SignIn({ onClose }: { onClose?: () => void }) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!supabase) { setMessage('Supabase setup is required before accounts can be used.'); return; }
+    if (!supabase) { setMessage('Account services are temporarily unavailable. Please try again later.'); return; }
     setBusy(true);
     setMessage('');
     try {
@@ -263,13 +285,97 @@ function Gallery() {
   const [items, setItems] = useState<Artwork[]>([]); const [offset, setOffset] = useState(0); const [next, setNext] = useState<number|null>(null);
   const [loading,setLoading]=useState(true); const [error,setError]=useState('');
   const search=searchParams.get('q')||'', tag=searchParams.get('tag')||'', category=searchParams.get('category')||'', style=searchParams.get('style')||'';
-  const load=useCallback(async(reset:boolean)=>{setLoading(true);setError('');try{const at=reset?0:offset;const params=new URLSearchParams({offset:String(at),limit:'24',rating:'general'});if(search)params.set('search',search);if(tag)params.set('tag',tag);if(category)params.set('category',category);if(style)params.set('style',style);const r=await api<{items:Artwork[];total:number;offset:number;limit:number}>(`gallery?${params}`);setItems(v=>reset?r.items:[...v,...r.items]);const n=r.offset+r.items.length;setOffset(n);setNext(n<r.total?n:null);}catch(e){setError(errorMessage(e,'Could not load gallery.'));}finally{setLoading(false);}},[search,tag,category,style,offset]);
+  const [draftSearch, setDraftSearch] = useState(search);
+  const searchId = useId();
+  const requestId = useRef(0);
+  useEffect(() => { setDraftSearch(search); }, [search]);
+  const load = useCallback(async (reset: boolean) => {
+    const request = ++requestId.current;
+    setLoading(true);
+    setError('');
+    if (reset) { setItems([]); setOffset(0); setNext(null); }
+    try {
+      const params = new URLSearchParams({ offset: String(reset ? 0 : offset), limit: '24', rating: 'general' });
+      if (search) params.set('search', search);
+      if (tag) params.set('tag', tag);
+      if (category) params.set('category', category);
+      if (style) params.set('style', style);
+      const result = await api<{ items: Artwork[]; total: number; offset: number; limit: number }>(`gallery?${params}`);
+      if (request !== requestId.current) return;
+      setItems(current => reset ? result.items : [...current, ...result.items]);
+      const loaded = result.offset + result.items.length;
+      setOffset(loaded);
+      setNext(loaded < result.total ? loaded : null);
+    } catch {
+      if (request === requestId.current) setError('load-failed');
+    } finally {
+      if (request === requestId.current) setLoading(false);
+    }
+  }, [search, tag, category, style, offset]);
   useEffect(()=>{void load(true);},[search,tag,category,style]);
   function setParam(k:string,v:string){const p=new URLSearchParams(searchParams);if(v)p.set(k,v);else p.delete(k);if(k==='category')p.delete('style');setSearchParams(p);}
-  return <main className="main-content"><section className="hero"><div><div className="eyebrow">A considered art space</div><h1>Art beyond<br/>the <em>ordinary.</em></h1><p className="hero-copy">Discover AI-generated art across nine thoughtful collections. Approved works are reviewed before appearing publicly.</p><div className="hero-actions"><Link className="button-primary" to="/upload">Submit artwork <ArrowRight size={14}/></Link><a className="button-secondary" href="#gallery">Explore gallery</a></div></div><div className="hero-art" aria-hidden="true"><span className="hero-art-label">KAMNA · BETA</span><span className="hero-art-orbit"/><span className="hero-art-disc"/><span className="hero-art-stamp">Review before publishing</span></div></section><Rules/>
-  <section className="category-discovery" aria-label="Browse collections"><div className="section-head"><div><div className="section-kicker">Browse by collection</div><h2>Find your visual language.</h2></div></div><div className="category-chips"><button className={!category?'filter-chip active':'filter-chip'} onClick={()=>setParam('category','')}>All general art</button>{categories.map(c=><button key={c.id} className={category===c.id?'filter-chip active':'filter-chip'} onClick={()=>setParam('category',c.id)}>{c.label}</button>)}</div><p className="helper-note">Indian Folk & Traditional works are AI-inspired interpretations, not traditional or community-created works. Each tradition is named distinctly and respectfully.</p>{category==='indian-folk-traditional'&&<div className="style-chips" aria-label="Indian tradition filters">{indianStyles.map(v=><button key={v.id} className={style===v.id?'filter-chip active':'filter-chip'} onClick={()=>setParam('style',style===v.id?'':v.id)}>{v.label}</button>)}</div>}</section>
-  <section id="gallery"><div className="section-head"><div><div className="section-kicker">Approved works · General audience</div><h2>{categories.find(c=>c.id===category)?.label||'Explore approved works'}</h2></div></div><div className="filters"><label className="search-field"><Search size={14}/><input aria-label="Search title, creator, or tags" value={search} onChange={e=>setParam('q',e.target.value)} placeholder="Search title, creator, tags"/></label><label className="search-field">Tag <input aria-label="Filter by tag" value={tag} onChange={e=>setParam('tag',e.target.value)} placeholder="Any tag"/></label><span className="sort-select">Latest</span></div>
-  {loading&&!items.length?<p role="status" className="empty-results">Loading approved artwork…</p>:error?<div className="notice-banner" role="alert">{error}<button className="button-quiet" onClick={()=>void load(true)}>Retry</button></div>:items.length?<><div className="artwork-grid">{items.map(art=><article className="artwork-card" key={art.id}><Link className={art.sensitive ? 'artwork-image sensitive-preview' : 'artwork-image'} to={`/artwork/${art.id}`}>{art.image_url&&<img src={art.image_url} alt={art.title} loading="lazy"/>}{art.sensitive&&<span className="sensitive-cover"><span>Sensitive preview · AI-generated</span><small>Open to view</small></span>}<span className="artwork-tag">AI-generated · General</span></Link><div className="card-meta"><div><Link to={`/artwork/${art.id}`} className="card-title">{art.title}</Link><div className="card-creator">by <Link to={`/profile/${art.handle}`}>{art.creator_name}</Link></div></div></div><div className="card-tags">{art.category&&<span className="tag">{categoryLabel(art.category)}</span>}{art.style&&<span className="tag">{styleLabel(art.style)}</span>}{art.tags?.map(t=><button className="tag" key={t} onClick={()=>setParam('tag',t)}>#{t}</button>)}</div></article>)}</div>{next!==null&&<div className="load-more"><button className="button-secondary" disabled={loading} onClick={()=>void load(false)}>Load more</button></div>}</>:<div className="empty-results">{loading?'Loading approved artwork…':'No approved works found. Try another category or search.'}</div>}</section></main>;
+  function scrollTo(id: string) {
+    const target = document.getElementById(id);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+  function chooseCategory(id: string) {
+    setParam('category', category === id ? '' : id);
+    window.requestAnimationFrame(() => scrollTo('gallery'));
+  }
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setParam('q', draftSearch.trim());
+    window.requestAnimationFrame(() => scrollTo('gallery'));
+  }
+  function clearFilters() {
+    setDraftSearch('');
+    setSearchParams({});
+  }
+  const hasFilters = Boolean(search || tag || category || style);
+  return <main className="main-content">
+    <section className="hero hero-compact" aria-labelledby="home-heading">
+      <div className="eyebrow">A considered art space</div>
+      <h1 id="home-heading">Art beyond the <em>ordinary.</em></h1>
+      <p className="hero-copy">Discover AI-generated work across nine thoughtful collections. Every public artwork is reviewed before it appears.</p>
+      <form className="home-search" role="search" onSubmit={submitSearch}>
+        <Search size={18} aria-hidden="true"/>
+        <label className="sr-only" htmlFor={searchId}>Search approved artwork, creators, or tags</label>
+        <input id={searchId} type="search" maxLength={120} autoComplete="off" value={draftSearch} onChange={event => setDraftSearch(event.target.value)} placeholder="Search artwork, creators, or tags"/>
+        <button className="home-search-submit" type="submit">Search <ArrowRight size={14}/></button>
+      </form>
+      <div className="hero-actions"><Link className="button-primary" to="/upload">Submit AI artwork <ArrowRight size={14}/></Link><span className="hero-note"><ShieldCheck size={13}/> Human review before public display</span></div>
+    </section>
+    <Rules/>
+    <section className="category-discovery" id="collections" aria-labelledby="collections-heading">
+      <div className="section-head category-section-head"><div><div className="section-kicker">Browse by collection</div><h2 id="collections-heading">Find your visual language.</h2></div><button type="button" className="all-categories-button" aria-pressed={!category && !style} onClick={() => setParam('category', '')}>All general art</button></div>
+      <div className="category-grid" role="group" aria-label="Nine general-audience collections">
+        {categories.map((collection, index) => {
+          const Icon = categoryIcons[collection.id as keyof typeof categoryIcons];
+          return <button type="button" key={collection.id} className={`category-tile${category === collection.id ? ' is-active' : ''}`} aria-pressed={category === collection.id} onClick={() => chooseCategory(collection.id)}>
+            <span className="category-tile-top"><Icon size={19} strokeWidth={1.6} aria-hidden="true"/><span className="category-index">{String(index + 1).padStart(2, '0')}</span></span>
+            <span className="category-label">{collection.label}</span>
+          </button>;
+        })}
+      </div>
+      <p className="helper-note">Indian Folk & Traditional works are AI-inspired interpretations, not traditional or community-created works. Each tradition is named distinctly and respectfully.</p>
+      {category === 'indian-folk-traditional' && <div className="style-chips" aria-label="Indian tradition filters">{indianStyles.map(item => <button type="button" key={item.id} className={style === item.id ? 'filter-chip active' : 'filter-chip'} aria-pressed={style === item.id} onClick={() => setParam('style', style === item.id ? '' : item.id)}>{item.label}</button>)}</div>}
+    </section>
+    <section className="featured-collection" aria-labelledby="featured-title">
+      <div className="featured-collection-icon" aria-hidden="true"><Flower2 size={28} strokeWidth={1.3}/></div>
+      <div className="featured-collection-copy"><div className="section-kicker">Featured collection · AI-inspired</div><h2 id="featured-title">Indian Folk & Traditional</h2><p>Explore distinct visual traditions through AI-generated interpretations—not traditional or community-created artwork.</p></div>
+      <button type="button" className="button-secondary featured-collection-action" onClick={() => chooseCategory('indian-folk-traditional')}>Explore collection <ArrowRight size={14}/></button>
+    </section>
+    <section id="gallery" className="latest-section" aria-labelledby="latest-heading">
+      <div className="section-head"><div><div className="section-kicker">Latest · General audience</div><h2 id="latest-heading">Latest approved works</h2><p>Only human-reviewed general-audience works appear here.</p></div>{category && <span className="current-filter">{categoryLabel(category)}</span>}</div>
+      <div className="filters"><label className="search-field"><span>Tag</span><input aria-label="Filter approved works by tag" value={tag} onChange={event => setParam('tag', event.target.value)} placeholder="Any tag"/></label>{tag && <button type="button" className="filter-reset" onClick={() => setParam('tag', '')}>Clear tag</button>}<span className="sort-select">Latest first</span></div>
+      {error && items.length > 0 && <div className="gallery-alert" role="alert">Some additional works could not be loaded. <button type="button" className="button-quiet" onClick={() => void load(false)}>Try again</button></div>}
+      {loading && !items.length ? <div className="gallery-loading" role="status"><span className="sr-only">Loading approved artwork</span><div className="artwork-grid skeleton-grid" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <div className="skeleton-card" key={index}><div className="skeleton-media"/><div className="skeleton-line"/><div className="skeleton-line short"/></div>)}</div></div>
+        : error && !items.length ? <div className="empty-state" role="alert"><div className="empty-state-icon"><ShieldCheck size={22}/></div><div className="section-kicker">A temporary pause</div><h3>We couldn’t load the latest works.</h3><p>Please try again in a moment. Your search and collection choices will stay here.</p><button type="button" className="button-secondary" onClick={() => void load(true)}>Try again</button></div>
+        : items.length ? <><div className="artwork-grid">{items.map(art => <article className="artwork-card" key={art.id}><Link className={art.sensitive ? 'artwork-image sensitive-preview' : 'artwork-image'} to={`/artwork/${art.id}`}>{art.image_url ? <img src={art.image_url} alt={art.title} loading="lazy"/> : <span className="image-unavailable">Preview unavailable</span>}{art.sensitive && <span className="sensitive-cover"><span>Sensitive preview · AI-generated</span><small>Open to view</small></span>}<span className="artwork-tag">AI-generated · General</span></Link><div className="card-meta"><div><Link to={`/artwork/${art.id}`} className="card-title">{art.title}</Link><div className="card-creator">by <Link to={`/profile/${art.handle}`}>{art.creator_name}</Link></div></div></div><div className="card-tags">{art.category && <span className="tag">{categoryLabel(art.category)}</span>}{art.style && <span className="tag">{styleLabel(art.style)}</span>}{art.tags?.map(item => <button type="button" className="tag" key={item} onClick={() => setParam('tag', item)}>#{item}</button>)}</div></article>)}</div>{next !== null && <div className="load-more"><button className="button-secondary" disabled={loading} onClick={() => void load(false)}>Load more</button></div>}</>
+          : <div className="empty-state" role="status"><div className="empty-state-icon"><Palette size={22}/></div><div className="section-kicker">{hasFilters ? 'A fresh search' : 'A gallery in the making'}</div><h3>{hasFilters ? 'No approved works match those filters yet.' : 'The first approved works will appear here.'}</h3><p>{hasFilters ? 'Try another collection or clear your filters to see all current work.' : 'Submissions are reviewed before they are shared. Browse the nine collections while the gallery grows.'}</p>{hasFilters ? <button type="button" className="button-secondary" onClick={clearFilters}>Clear filters</button> : <button type="button" className="button-secondary" onClick={() => scrollTo('collections')}>Browse all nine collections</button>}</div>}
+    </section>
+  </main>;
 }
 
 function AdultGallery({session}:{session:Session|null}){
@@ -362,7 +468,7 @@ function Upload({ session }: { session: Session | null }) {
     <div className="field"><label htmlFor="description">Description</label><textarea id="description" maxLength={600} value={description} onChange={event => setDescription(event.target.value)}/></div>
     <div className="field"><label htmlFor="category">Category</label><select id="category" value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></div>
     {category === 'indian-folk-traditional' && <div className="field"><label htmlFor="style">Tradition / style (distinct labels)</label><select id="style" value={style} onChange={e=>setStyle(e.target.value)}><option value="">Choose a style</option>{indianStyles.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select><small>AI-inspired interpretation only; not traditional or community-created work.</small></div>}
-    <div className="field"><label htmlFor="rating">Audience rating</label><select id="rating" value={audienceRating} onChange={e=>setAudienceRating(e.target.value as 'general'|'adult')}><option value="general">General audience</option>{adultConfigured&&<option value="adult">18+ Fashion & Swimwear</option>}</select>{!adultConfigured&&<small>18+ submissions are unavailable while this collection is not explicitly enabled by the backend.</small>}</div>
+    <div className="field"><label htmlFor="rating">Audience rating</label><select id="rating" value={audienceRating} onChange={e=>setAudienceRating(e.target.value as 'general'|'adult')}><option value="general">General audience</option>{adultConfigured&&<option value="adult">18+ Fashion & Swimwear</option>}</select>{!adultConfigured&&<small>18+ submissions are unavailable while this collection remains closed.</small>}</div>
     <div className="field"><label htmlFor="tags">Tags (comma-separated, up to 8; 30 characters each)</label><input id="tags" maxLength={247} value={tags} onChange={event => setTags(event.target.value)}/>{invalidTags && <small role="alert">Use at most 8 tags, each no longer than 30 characters.</small>}</div>
     <div className="field"><label htmlFor="model">AI model</label><input id="model" maxLength={100} value={model} onChange={event => setModel(event.target.value)}/></div>
     <div className="field"><label htmlFor="tool">AI tool</label><input id="tool" maxLength={100} value={tool} onChange={event => setTool(event.target.value)}/></div>
@@ -373,7 +479,7 @@ function Upload({ session }: { session: Session | null }) {
     <label className="check-row"><input type="checkbox" checked={policyConfirmed} onChange={event => setPolicyConfirmed(event.target.checked)} required/>I confirm this upload follows the content rules above.</label>
     {message && <p role="status" className="notice-banner">{message}</p>}
     <button className="button-primary" disabled={busy || !session || !supabaseConfigured || invalidFile || invalidTags}>{busy ? 'Submitting…' : 'Upload for review'}</button>
-  </form><aside className="side-card"><h2>Private review first</h2><p>Images upload same-origin to private Supabase Storage and submissions remain pending. Uploads are never published instantly.</p><p>{rules}</p></aside></div></Page>;
+  </form><aside className="side-card"><h2>Private review first</h2><p>Images are submitted securely for private review and remain pending. Uploads are never published instantly.</p><p>{rules}</p></aside></div></Page>;
 }
 
 function Account() {
@@ -531,7 +637,7 @@ export default function App() {
     }
     return () => { alive = false; listener?.data.subscription.unsubscribe(); window.removeEventListener('storage', onStorage); window.removeEventListener('kamna-auth-notice', onCustomNotice); channel?.close(); };
   }, [location.pathname, location.search, navigate]);
-  return <div className="site-shell"><Header session={session} onAuth={() => setAuthModal(true)}/>{authNotice && <div className="auth-event-notice" role="status">{authNotice}</div>}{!supabaseConfigured && <div className="main-content"><Setup/></div>}{checking ? <main className="main-content"><p role="status" className="empty-results">Checking account session…</p></main> : <Routes>
+  return <div className="site-shell"><Header session={session} onAuth={() => setAuthModal(true)}/>{authNotice && <div className="auth-event-notice" role="status">{authNotice}</div>}{checking ? <main className="main-content"><p role="status" className="empty-results">Checking account session…</p></main> : <Routes>
     <Route path="/" element={<Gallery/>}/><Route path="/18-plus" element={<AdultGallery session={session}/>}/><Route path="/artwork/:id" element={<Detail/>}/><Route path="/signin" element={<SignIn/>}/><Route path="/upload" element={<Upload session={session}/>}/><Route path="/account" element={session ? <Account/> : <SignIn/>}/><Route path="/profile/:handle" element={<Profile/>}/><Route path="/report" element={<ReportPage/>}/><Route path="/moderation" element={<Admin/>}/><Route path="/rules" element={<RulesPage/>}/><Route path="/privacy" element={<PrivacyPage/>}/><Route path="/terms" element={<TermsPage/>}/><Route path="*" element={<Page title="Page not found"><Link to="/" className="button-secondary">Return to gallery</Link></Page>}/>
   </Routes>}
   <Footer/>{authModal && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setAuthModal(false); }}><div className="modal" role="dialog" aria-modal="true" aria-label="Sign in"><button className="modal-close" onClick={() => setAuthModal(false)} aria-label="Close">×</button><SignIn onClose={() => setAuthModal(false)}/></div></div>}</div>;
