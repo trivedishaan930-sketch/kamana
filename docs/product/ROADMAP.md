@@ -4,17 +4,19 @@ Status date: 2026-11-12. The owner approved the original roadmap on 2026-11-10 a
 
 ## Top priority — Visual Product Sprint (owner-ordered 2026-11-11)
 
-Build the visible experience before measuring it and without waiting for approved works. T-021 is complete: Proposal A — Editorial Index won with independent rubric totals 31/35 and 32/35, compared with Proposal B at 25/35 and 28/35. See `docs/product/WIREFRAMES.md` and `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. T-032 is complete; T-017 is next in order:
+Build the visible experience before measuring it and without waiting for approved works. T-021 is complete: Proposal A — Editorial Index won with independent rubric totals 31/35 and 32/35, compared with Proposal B at 25/35 and 28/35. See `docs/product/WIREFRAMES.md` and `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`. T-032 and T-017 are complete; T-033 is next in order:
 
 1. **Home page — complete (T-032, 2026-11-12):** compact header; hero with search; all nine general categories always visible as attractive tiles even when empty; featured and latest sections; a designed empty state with no “backend”/“Supabase” wording. Loading placeholders may be skeleton cards only. Never show invented or pretend artwork.
-2. **Gallery — next (T-017):** true responsive masonry with lazy loading and smooth phone behavior; preserve useful reading order, visible provenance, and approved-only content.
-3. **Artwork, creator, and download:** polish artwork details, creator pages, and anonymous free downloads without obscuring AI labels, IDs, or rights terms.
+2. **Gallery — complete (T-017, 2026-11-12):** responsive multi-column masonry with lazy-loading, async decoding, accessible list semantics, and column-major DOM/focus order; 4 columns on desktop, 3 on tablet, and 2 on small phones. Keep visible AI disclosure and approved-only general-audience data.
+3. **Artwork, creator, and download — next (T-033):** polish artwork details, creator pages, and anonymous free downloads without obscuring AI labels, IDs, or rights terms.
 4. **Sign-in and upload:** compact flow with the form visible first and a clear sign-in/create-account prompt for signed-out visitors; preserve account, rights, privacy, and human-review rules.
 5. **Visual polish:** typography, spacing, color, motion, and accessibility in the Gallery Ash style; use keyboard, screen-reader, contrast, touch-target, and reduced-motion checks.
 
 Only after the visible UI exists, measure performance, accessibility, mobile usability, search behavior, and Core Web Vitals. Do not invent numeric targets. Keep the empty gallery honest: decorative category icons/patterns are acceptable when unmistakably UI, but fake artwork, stock art, auto-approval, and lowered moderation are not. Deploy only through the existing GitHub Actions workflow after its checks pass. Keep 18+ and monetization off.
 
 T-032 verification used the repository's typecheck/build and local Wrangler Pages preview; the home and route-manifest requests returned HTTP 200, and desktop/mobile viewport checks confirmed category visibility and compact navigation. No local provider configuration was available, so real artwork, live empty-data behavior, and provider/network skeleton timing remain unverified. The build has a non-blocking Vite advisory for a main JavaScript chunk above 500 kB; no budget is active.
+
+T-017 code was independently reviewed with no P0/P1 blocker. `pnpm typecheck`, `pnpm build`, and `git diff --check` pass. A Chromium DevTools emulation using an explicitly non-artwork, variable-height layout fixture verified 4/3/2/2 columns at 1440/768/375/320 CSS pixels, DOM order following the column layout, and no horizontal overflow. This verifies layout geometry, not real artwork or provider behavior. Existing API response shapes have no intrinsic width/height metadata; lazy-loaded image ratios may shift card height after load. Performance/CLS and assistive-technology testing remain scheduled after the visual UI exists.
 
 ## Owner's measurable goals and baselines
 

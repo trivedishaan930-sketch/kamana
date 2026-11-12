@@ -81,3 +81,6 @@
 
 
 - 2026-11-12T04:18:59Z — manus-1 — Took over T-017 after manus-2 heartbeat `03:51:16Z` was stale by 27m43s under the 10-minute `AGENTS.md` rule. Latest origin/main `463f55e` was clean and synchronized; `ec07a70` only contained a task claim, no implementation. Reviewed T-032 code/review/verification; T-017 is resumed, with T-033/T-034/T-035 still ordered after it. T-010 remains open pending repo-level security screenshot. No provider/storage settings or deployment changed.
+
+
+- 2026-11-12T04:30:23Z — manus-1 — Completed T-017 source work: responsive CSS-column masonry for general gallery and creator profile, lazy/async image decoding, accessible list semantics, phone column-width fix. Independent reviewer #2 found no P0/P1 blockers. `pnpm typecheck`, `pnpm build`, and `git diff --check` passed; Vite retains its non-blocking 556.50 kB chunk warning. Explicit Chromium DevTools viewport emulation with non-artwork layout fixtures verified 4/3/2/2 columns at 1440/768/375/320px, DOM/visual column order, variable heights, and no horizontal overflow. Provider-backed images and CLS remain unverified; current API lacks image dimensions, recorded in review/known issues. Harness failures/corrections are in `.ai/ERRORS.md`. Claimed next ordered task T-033 for artwork/profile/download polish. No storage/provider settings or manual deployment changed.

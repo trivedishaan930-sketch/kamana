@@ -1,13 +1,12 @@
 # Relay state
 
 - **Active agent:** manus-1.
-- **Heartbeat (UTC):** 2026-11-12T04:18:59Z.
-- **Current task:** Resumed T-017 — true responsive masonry gallery — after stale takeover; previous `manus-2` heartbeat was `2026-11-12T03:51:16Z` (27m43s old at takeover), exceeding the repo's sole 10-minute rule. `ec07a70` only claimed the task; no implementation was present.
-- **Takeover review:** `.ai/REVIEWS/2026-11-12-T017-stale-takeover-manus-1.md`; previous T-032 code/review and its CI evidence preserved.
-- **T-032:** complete in `de5b885`; typecheck/build/diff check, local Wrangler route checks, desktop/mobile layout and menu behavior passed. Real provider-backed works, live empty response and network skeleton timing remain unverified; bundle warning is non-blocking. See `.ai/REVIEWS/2026-11-12-t032-implementation-review.md`.
-- **T-021:** two separate reviewers scored both proposals; Proposal A selected. Evidence `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`.
-- **Visual sprint:** T-032 home complete; T-017 gallery active; T-033 artwork/profile/download, T-034 sign-in/upload, and T-035 design/accessibility polish remain next in order. Measure performance/accessibility after UI exists; do not fabricate artwork or wait for baseline/content.
-- **T-010:** owner-reported deleted old PAT and account-level Dependabot alerts/push protection; still blocked pending repository-level screenshot. Do not mark complete.
-- **T-031:** separate target approval remains pending; visual sprint work does not approve numeric targets.
-- **Boundaries:** do not change storage or provider settings; keep 18+ and monetization off. Any deploy only via existing GitHub Actions after checks pass. No direct upload/provider deploy.
-- **Repo sync:** branch was clean and matched `origin/main` at takeover (`463f55e`); preserve all scorecard commits and never force-push.
+- **Heartbeat (UTC):** 2026-11-12T04:30:23Z.
+- **Current task:** T-033 — polish artwork detail, creator profile and anonymous download UI. T-017 was independently reviewed and accepted immediately before this claim; details in `.ai/REVIEWS/2026-11-12-t017-implementation-review.md`.
+- **T-017:** responsive CSS-column masonry in public general gallery and profile lists; lazy load and async decode; source-order/list semantics. Typecheck, build and diff hygiene passed. Correct Chromium DevTools emulation: actual 1440/768/375/320 CSS viewports yield 4/3/2/2 columns, monotonic DOM order through columns and no horizontal overflow using non-artwork geometry fixtures. No provider-backed works tested. Existing API has no image dimensions, so real loaded image ratios can shift cards; issue is recorded and deferred to measured performance work (no storage/API schema expansion).
+- **T-032:** Proposal A home complete in `de5b885`; existing review `.ai/REVIEWS/2026-11-12-t032-implementation-review.md`. Providerless preview limitations and non-blocking >500 kB Vite JS warning remain.
+- **Proposal selection:** T-021 complete, two independent rubric reviews favored Proposal A; `.ai/REVIEWS/2026-11-11-t021-proposal-scores.md`.
+- **Next visual sequence:** T-033 active; T-034 compact sign-in/upload; T-035 Gallery Ash visual/accessibility polish. Measure performance/accessibility after UI exists; do not fabricate artwork or wait for content/baselines.
+- **T-010:** owner-reported deleted PAT and account-level Dependabot/push protection. Still blocked pending repository-level screenshot.
+- **T-031:** separate target approval remains pending.
+- **Boundaries:** no storage or provider setting changes; 18+ and monetization off; deployment only via existing GitHub Actions after checks pass; no direct upload/provider deploy. Preserve approved-only general content and anonymous download boundaries.

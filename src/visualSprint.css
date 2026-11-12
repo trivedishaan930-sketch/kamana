@@ -129,3 +129,53 @@
   .latest-section .artwork-grid:not(.skeleton-grid) .artwork-image{aspect-ratio:4/4.7}
 }
 @media(max-width:360px){.nav-right .upload-nav{display:none}}
+
+
+/* T-017: responsive Pinterest-style masonry. CSS columns keep the DOM in a
+   simple sequential reading order while intrinsic image ratios create varied
+   card heights; placeholders and empty states stay in their existing layouts. */
+.masonry-grid{
+  column-count:4;
+  column-width:220px;
+  column-gap:18px;
+  width:100%;
+  padding-top:2px;
+}
+.masonry-grid .artwork-card{
+  display:inline-block;
+  width:100%;
+  margin:0 0 18px;
+  break-inside:avoid;
+  vertical-align:top;
+}
+.masonry-grid .artwork-image{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:0;
+  aspect-ratio:auto;
+  overflow:hidden;
+  background:var(--soft);
+}
+.masonry-grid .artwork-image img{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:auto;
+  object-fit:cover;
+}
+.masonry-grid .card-meta{margin-top:9px}
+.masonry-grid .card-title{white-space:normal;overflow-wrap:anywhere}
+.masonry-grid .artwork-tag{font-size:8px}
+@media(max-width:1000px){
+  .masonry-grid{column-count:3}
+}
+@media(max-width:760px){
+  .masonry-grid{column-count:3;column-gap:13px}
+  .masonry-grid .artwork-card{margin-bottom:15px}
+}
+@media(max-width:520px){
+  .masonry-grid{column-count:2;column-width:auto;column-gap:11px}
+  .masonry-grid .artwork-card{margin-bottom:14px}
+  .masonry-grid .card-title{font-size:15px}
+}

@@ -8,3 +8,5 @@ This file is intentionally honest and current. No critical or high-severity issu
 - GitHub CodeQL and repository checks have passed on the latest fix commit; owner-only security settings are not confirmed here.
 - The existing Vite build emits a non-blocking large JavaScript chunk warning.
 - The existing plan/TODO include a personal admin contact; placeholder cleanup is pending the owner-approved roadmap/contact decision.
+
+- T-017 responsive masonry uses intrinsic image dimensions, but current Artwork/API records expose no width/height/aspect-ratio metadata. Lazy-loaded real images can shift card heights when they load. Provider-backed image behavior and CLS were not measured; do not change storage/API scope just to close this visual task. Measure after the visual UI exists and address with owner-approved data/API scope if evidence warrants it.
