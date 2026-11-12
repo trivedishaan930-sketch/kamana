@@ -1,7 +1,7 @@
 # Kamna weekly scorecard
 
-Generated (UTC): 2026-11-12T04:19:59.306460+00:00
-Window (UTC): 2026-11-05T04:19:59.306460+00:00 through 2026-11-12T04:19:59.306460+00:00 (rolling seven days)
+Generated (UTC): 2026-11-12T04:33:04.134161+00:00
+Window (UTC): 2026-11-05T04:33:04.134161+00:00 through 2026-11-12T04:33:04.134161+00:00 (rolling seven days)
 TARGETS status: not recorded
 Targets in this report are observations or proposals only; this Action never approves or changes a target.
 18+ collection and monetization: OFF.
@@ -32,7 +32,7 @@ No earning feature is enabled; each step still needs current provider-policy che
 |---|---|
 | New-agent resume time | not measured — no consistent resume-start and first-action timestamps |
 | Truly independent review share | not measured — complete task/reviewer/account linkage is not yet consistent |
-| CI green rate | 179/186 successful scored runs (96.2%; observed, no target set); completion-time proxy=updated_at; scanned=236 runs; skipped=0, cancelled=0 |
+| CI green rate | 182/189 successful scored runs (96.3%; observed, no target set); completion-time proxy=updated_at; scanned=240 runs; skipped=0, cancelled=0 |
 | Repeated error types | not measured — error causes are free text without a normalized type taxonomy |
 | Stale-lock takeovers | 8 explicitly documented in the seven-day window; count only, not a target |
 | Tasks per session | not measured — the Session trailer is an account/tool label, not a unique session ID |
@@ -42,12 +42,12 @@ This Action reports observations only; it never edits or approves a target.
 
 ## Relay health
 - Active agent: manus-1.
-- Current task: Resumed T-017 — true responsive masonry gallery — after stale takeover; previous `manus-2` heartbeat was `2026-11-12T03:51:16Z` (27m43s old at takeover), exceeding the repo's sole 10-minute rule. `ec07a70` only claimed the task; no implementation was present.
-- Heartbeat: 2026-11-12T04:18:59Z. (age: unknown)
+- Current task: T-033 — polish artwork detail, creator profile and anonymous download UI. T-017 was independently reviewed and accepted immediately before this claim; details in `.ai/REVIEWS/2026-11-12-t017-implementation-review.md`.
+- Heartbeat: 2026-11-12T04:30:23Z. (age: unknown)
 - Stale lock (>=10m): no active task lock
-- Tasks: todo 19; in progress 1; done 13; blocked 2
+- Tasks: todo 18; in progress 1; done 14; blocked 2
 - Pending owner questions: 1
-- Dated error-table entries recorded: 11 (not equivalent to repeated error types)
+- Dated error-table entries recorded: 12 (not equivalent to repeated error types)
 
 ## Flags
 - owner questions are open
