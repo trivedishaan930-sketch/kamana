@@ -1,0 +1,9 @@
+# T-017 stale takeover review — 2026-11-12
+
+- **Reviewer/claimant:** manus-1, Manus Sandbox; this is a takeover/handoff review, not independent approval of future code.
+- **Prior writer:** manus-2, heartbeat `2026-11-12T03:51:16Z`; at takeover it was 27m43s old (current time `04:18:59Z`), beyond the 10-minute rule in `AGENTS.md`.
+- **Latest main:** `463f55e` `[github-actions] refresh weekly scorecard`; worktree clean and synchronized with origin. The last T-017 commit `ec07a70` only updated `.ai/CONTEXT.md`, `.ai/LOG.md`, `.ai/STATE.md`, `.ai/TASKS.md`; no source changes were present.
+- **Reviewed prior implementation:** T-032 Proposal A at `de5b885`; implementation review `.ai/REVIEWS/2026-11-12-t032-implementation-review.md` reports typecheck/build/diff-check, local Wrangler route checks, mobile screenshot/menu interactions, and passing relay/security/deploy workflows. Known limitations: providerless preview could not verify real approved works, live empty-data behavior, or provider-network skeleton timing; Vite warns that the main chunk is 556.30 kB and no bundle budget is active.
+- **Directive/plan alignment:** T-017 is the next ordered Visual Product Sprint step after T-032. Build responsive masonry and lazy loading without waiting for content/baseline. Preserve useful reading order, approved-only content, AI/provenance labels, nine-category discoverability, reduced-motion/accessibility considerations, and all scope boundaries. No storage/provider setting changes, no direct deploy, 18+ and monetization remain off.
+- **Owner security update:** T-010 remains blocked until repository-level screenshot; deleted PAT and account-level controls are owner-reported only.
+- **Disposition:** Takeover is permitted under `AGENTS.md`; task resumed as T-017. This record does not independently approve code, security, or production behavior.
