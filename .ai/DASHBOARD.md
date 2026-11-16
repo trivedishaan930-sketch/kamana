@@ -1,7 +1,7 @@
 # Kamna weekly scorecard
 
-Generated (UTC): 2026-11-12T04:33:04.134161+00:00
-Window (UTC): 2026-11-05T04:33:04.134161+00:00 through 2026-11-12T04:33:04.134161+00:00 (rolling seven days)
+Generated (UTC): 2026-11-16T09:37:15.690677+00:00
+Window (UTC): 2026-11-09T09:37:15.690677+00:00 through 2026-11-16T09:37:15.690677+00:00 (rolling seven days)
 TARGETS status: not recorded
 Targets in this report are observations or proposals only; this Action never approves or changes a target.
 18+ collection and monetization: OFF.
@@ -10,7 +10,7 @@ Targets in this report are observations or proposals only; this Action never app
 
 | Metric | This-week reading | Proposed target / gate |
 |---|---|---|
-| Approved general-audience works | 1 (public approved-gallery total) | N = 50 (assumption, pending Yes) |
+| Approved general-audience works | 2 (public approved-gallery total) | N = 50 (assumption, pending Yes) |
 | General-audience categories | 9 (adult category excluded) | No growth target set |
 | Anonymous download E2E | not measured — requires an approved work and the T-020 anonymous E2E procedure | Required release gate: pass the anonymous view-to-download path for a real approved general-audience work; no numeric success-rate target |
 | Search response time | not measured — T-016 requires approved works and a repeatable timing run | No millisecond target until a representative baseline exists |
@@ -32,7 +32,7 @@ No earning feature is enabled; each step still needs current provider-policy che
 |---|---|
 | New-agent resume time | not measured — no consistent resume-start and first-action timestamps |
 | Truly independent review share | not measured — complete task/reviewer/account linkage is not yet consistent |
-| CI green rate | 182/189 successful scored runs (96.3%; observed, no target set); completion-time proxy=updated_at; scanned=240 runs; skipped=0, cancelled=0 |
+| CI green rate | 185/192 successful scored runs (96.4%; observed, no target set); completion-time proxy=updated_at; scanned=241 runs; skipped=0, cancelled=0 |
 | Repeated error types | not measured — error causes are free text without a normalized type taxonomy |
 | Stale-lock takeovers | 8 explicitly documented in the seven-day window; count only, not a target |
 | Tasks per session | not measured — the Session trailer is an account/tool label, not a unique session ID |
