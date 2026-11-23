@@ -1,7 +1,7 @@
 # Kamna weekly scorecard
 
-Generated (UTC): 2026-11-16T09:37:15.690677+00:00
-Window (UTC): 2026-11-09T09:37:15.690677+00:00 through 2026-11-16T09:37:15.690677+00:00 (rolling seven days)
+Generated (UTC): 2026-11-23T10:42:58.235171+00:00
+Window (UTC): 2026-11-16T10:42:58.235171+00:00 through 2026-11-23T10:42:58.235171+00:00 (rolling seven days)
 TARGETS status: not recorded
 Targets in this report are observations or proposals only; this Action never approves or changes a target.
 18+ collection and monetization: OFF.
@@ -32,9 +32,9 @@ No earning feature is enabled; each step still needs current provider-policy che
 |---|---|
 | New-agent resume time | not measured — no consistent resume-start and first-action timestamps |
 | Truly independent review share | not measured — complete task/reviewer/account linkage is not yet consistent |
-| CI green rate | 185/192 successful scored runs (96.4%; observed, no target set); completion-time proxy=updated_at; scanned=241 runs; skipped=0, cancelled=0 |
+| CI green rate | 1/1 successful scored runs (100.0%; observed, no target set); completion-time proxy=updated_at; scanned=251 runs; skipped=0, cancelled=0 |
 | Repeated error types | not measured — error causes are free text without a normalized type taxonomy |
-| Stale-lock takeovers | 8 explicitly documented in the seven-day window; count only, not a target |
+| Stale-lock takeovers | 0 explicitly documented in the seven-day window; count only, not a target |
 | Tasks per session | not measured — the Session trailer is an account/tool label, not a unique session ID |
 
 Target definitions, baselines, measure-by dates, and gate details: docs/product/TARGETS.md.
